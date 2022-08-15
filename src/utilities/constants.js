@@ -1,6 +1,8 @@
 export const storageId = "exp-user";
 
-export const baseUrl = "http://localhost:8000/api/v1";
+// export const baseUrl = "http://localhost:8000/api/v1";
+
+export const baseUrl = "https://exp-back.herokuapp.com/";
 
 const store_data = localStorage.getItem(storageId);
 const token = JSON.parse(store_data)?.token;
