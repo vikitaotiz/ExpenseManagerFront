@@ -136,7 +136,7 @@
           >
           <q-separator />
           <div class="row">
-            <div class="col">
+            <div class="col-xs-12 col-sm-3 col-md-3">
               <q-input
                 type="number"
                 outlined
@@ -146,7 +146,7 @@
                 class="q-ma-md"
               />
             </div>
-            <div class="col">
+            <div class="col-xs-12 col-sm-3 col-md-3">
               <q-input
                 type="number"
                 outlined
@@ -156,7 +156,7 @@
                 class="q-ma-md"
               />
             </div>
-            <div class="col">
+            <div class="col-xs-12 col-sm-3 col-md-3">
               <q-input
                 type="number"
                 outlined
@@ -166,7 +166,7 @@
                 class="q-ma-md"
               />
             </div>
-            <div class="col">
+            <div class="col-xs-12 col-sm-3 col-md-3">
               <q-input
                 type="number"
                 outlined
@@ -178,7 +178,7 @@
             </div>
           </div>
           <div class="row">
-            <div class="col">
+            <div class="col-xs-12 col-sm-4 col-md-4">
               <q-input
                 type="number"
                 outlined
@@ -188,7 +188,7 @@
                 class="q-ma-md"
               />
             </div>
-            <div class="col">
+            <div class="col-xs-12 col-sm-4 col-md-4">
               <q-input
                 type="number"
                 outlined
@@ -198,7 +198,7 @@
                 class="q-ma-md"
               />
             </div>
-            <div class="col">
+            <div class="col-xs-12 col-sm-4 col-md-4">
               <q-select
                 clearable
                 :options="parts"
