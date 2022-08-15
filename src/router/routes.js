@@ -2,7 +2,7 @@
 
 import Home from "pages/IndexPage.vue";
 import Register from "pages/Register.vue";
-import Dashboard from "pages/dashboard/Index.vue";
+import Dashboard from "pages/dashboard/index.vue";
 import Categories from "pages/categories/Index.vue";
 import CategoryProducts from "pages/products/CategoryProducts.vue";
 import CompanyEntries from "pages/entries/CompanyEntries.vue";
