@@ -6,13 +6,19 @@
   "author": "vikitaotiz <victorotieno598@gmaiil.com>",
   "private": true,
   "scripts": {
-    "test": "echo \"No test specified\" && exit 0"
+    "test": "echo \"No test specified\" && exit 0",
+    "build": "quasar build",
+    "start": "node server.js",
+    "heroku-postbuild": "yarn && yarn build"
   },
   "dependencies": {
     "@quasar/extras": "^1.0.0",
     "chart.js": "^3.9.1",
+    "connect-history-api-fallback": "^2.0.0",
+    "express": "^4.18.1",
     "pinia": "^2.0.11",
     "quasar": "^2.6.0",
+    "serve-static": "^1.15.0",
     "vue": "^3.0.0",
     "vue-chartjs": "^4.1.1",
     "vue-query": "^1.25.2",
