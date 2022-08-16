@@ -1,5 +1,5 @@
 <template>
-  <q-footer>
+  <q-footer reveal>
     <q-tabs dense>
       <q-route-tab
         v-for="link in links"
