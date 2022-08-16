@@ -70,7 +70,7 @@
       <router-view />
     </q-page-container>
 
-    <Footer />
+    <Footer v-if="userStore.user" />
   </q-layout>
 </template>
 
