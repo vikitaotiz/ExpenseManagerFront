@@ -148,6 +148,7 @@
             </div>
             <div class="col-xs-12 col-sm-3 col-md-3">
               <q-input
+                v-if="entry.unit_price"
                 type="number"
                 outlined
                 v-model="entry.opening_stock"
@@ -158,6 +159,7 @@
             </div>
             <div class="col-xs-12 col-sm-3 col-md-3">
               <q-input
+                v-if="entry.opening_stock"
                 type="number"
                 outlined
                 v-model="entry.closing_stock"
@@ -168,6 +170,7 @@
             </div>
             <div class="col-xs-12 col-sm-3 col-md-3">
               <q-input
+                v-if="entry.closing_stock"
                 type="number"
                 outlined
                 v-model="entry.purchases"
@@ -180,6 +183,7 @@
           <div class="row">
             <div class="col-xs-12 col-sm-4 col-md-4">
               <q-input
+                v-if="entry.purchases"
                 type="number"
                 outlined
                 v-model="entry.usage"
@@ -190,6 +194,7 @@
             </div>
             <div class="col-xs-12 col-sm-4 col-md-4">
               <q-input
+                v-if="entry.usage"
                 type="number"
                 outlined
                 v-model="entry.system_usage"
@@ -200,6 +205,7 @@
             </div>
             <div class="col-xs-12 col-sm-4 col-md-4">
               <q-select
+                v-if="entry.system_usage"
                 clearable
                 :options="parts"
                 option-label="name"
@@ -216,7 +222,13 @@
 
         <q-card-actions align="right">
           <q-btn flat label="Cancel" color="red" v-close-popup /><q-space />
-          <q-btn flat label="Submit Entry" color="primary" @click="submitEntry()" />
+          <q-btn
+            v-if="entry.part"
+            flat
+            label="Submit Entry"
+            color="primary"
+            @click="submitEntry()"
+          />
         </q-card-actions>
       </q-card>
     </q-dialog>

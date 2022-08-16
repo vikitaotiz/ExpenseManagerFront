@@ -15,7 +15,7 @@
     >
       <template v-slot:top-right>
         <q-btn
-          label="View All Composition"
+          label="View All Companies"
           size="sm"
           flat
           color="primary"
