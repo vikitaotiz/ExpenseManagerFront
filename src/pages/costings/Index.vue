@@ -233,7 +233,9 @@ import {
   filterCategoryProducts,
   deleteData,
 } from "src/utilities/commonMethods";
+import { useUserStore } from "src/stores/user-store";
 
+const userStore = useUserStore();
 const queryClient = useQueryClient();
 const $q = useQuasar();
 
@@ -281,9 +283,15 @@ const entry = reactive({
   stock_shortage_cost: 0,
 });
 
-const { data: categories } = useQuery("categories", () => fetchData("categories"));
-const { data: parts } = useQuery("parts", () => fetchData("parts"));
-const { data: entries } = useQuery("today_entries", () => fetchData("today_entries"));
+const { data: categories } = useQuery("categories", () =>
+  fetchData("categories", userStore?.user?.token)
+);
+const { data: parts } = useQuery("parts", () =>
+  fetchData("parts", userStore?.user?.token)
+);
+const { data: entries } = useQuery("today_entries", () =>
+  fetchData("today_entries", userStore?.user?.token)
+);
 
 const openEntryDialog = (data) => {
   product.value = data;
@@ -321,40 +329,46 @@ const submitEntry = async () => {
   loading.value = true;
 };
 
-const { mutate: addEntry } = useMutation((data) => createNewEntry(data), {
-  onSuccess: (data) => {
-    queryClient.refetchQueries("today_entries");
-    entryDialog.value = false;
-    loading.value = false;
-    $q.notify({
-      message: "Entry created successfully.",
-      color: "orange",
-      position: "top-right",
-    });
-  },
+const { mutate: addEntry } = useMutation(
+  (data) => createNewEntry(data, userStore?.user?.token),
+  {
+    onSuccess: (data) => {
+      queryClient.refetchQueries("today_entries");
+      entryDialog.value = false;
+      loading.value = false;
+      $q.notify({
+        message: "Entry created successfully.",
+        color: "orange",
+        position: "top-right",
+      });
+    },
 
-  onError: (error) => {
-    alert("There was an error : " + error);
-    entryDialog.value = false;
-  },
-});
+    onError: (error) => {
+      alert("There was an error : " + error);
+      entryDialog.value = false;
+    },
+  }
+);
 
-const { mutate: removeEntry } = useMutation((id) => deleteData(id, "entries"), {
-  onSuccess: (data) => {
-    queryClient.refetchQueries("today_entries");
-    loading.value = false;
-    $q.notify({
-      message: "Entry deleted successfully.",
-      color: "orange",
-      position: "top-right",
-    });
-  },
+const { mutate: removeEntry } = useMutation(
+  (id) => deleteData(id, "entries", userStore?.user?.token),
+  {
+    onSuccess: (data) => {
+      queryClient.refetchQueries("today_entries");
+      loading.value = false;
+      $q.notify({
+        message: "Entry deleted successfully.",
+        color: "orange",
+        position: "top-right",
+      });
+    },
 
-  onError: (error) => {
-    alert("There was an error : " + error);
-    loading.value = false;
-  },
-});
+    onError: (error) => {
+      alert("There was an error : " + error);
+      loading.value = false;
+    },
+  }
+);
 
 const deleteTodayEntry = (row) => {
   const delete_entry = confirm("Are you sure?");

@@ -2,7 +2,7 @@
   <div class="q-pa-md">
     <div class="row">
       <div class="col-xs-12 col-sm-4 col-md-4 q-pa-sm">
-        <q-card class="q-pa-sm"><DoughnutChart /></q-card>
+        <q-card class="q-pa-sm"><DoughnutChart :token="userStore?.user?.token" /></q-card>
       </div>
       <div class="col-xs-12 col-sm-4 col-md-4 q-pa-sm">
         <q-card class="q-pa-sm bg-orange">
@@ -25,4 +25,8 @@ import DoughnutChart from "src/components/DoughnutChart.vue";
 import BarChart from "src/components/BarChart.vue";
 import Stats from "src/components/Stats.vue";
 import MiniReport from "src/components/MiniReport.vue";
+
+import { useUserStore } from "src/stores/user-store";
+
+const userStore = useUserStore();
 </script>

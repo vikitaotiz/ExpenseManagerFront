@@ -130,6 +130,7 @@ const register = async () => {
     };
 
     const res = await userStore.loginRegister(data, "register");
+
     if (res.status === 201) {
       router.push("/dashboard");
       loading.value = false;

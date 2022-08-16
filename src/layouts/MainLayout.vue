@@ -1,5 +1,5 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
+  <q-layout view="hHh lpR lff">
     <q-header elevated>
       <q-toolbar>
         <q-btn
@@ -10,6 +10,7 @@
           icon="menu"
           aria-label="Menu"
           @click="toggleLeftDrawer"
+          class="menuBtn"
         />
 
         <q-toolbar-title> Expense Manager </q-toolbar-title>
@@ -17,31 +18,11 @@
         <div>
           <span v-if="!userStore.user"> version 0.1.1 </span>
           <q-spinner-grid v-if="loading" size="20px" class="q-mr-md" />
-          <!-- <q-btn v-if="userStore.user" @click="logout" dense flat icon="logout" /> -->
 
           <q-btn-dropdown icon="person" v-if="userStore.user" unelevated label="Account">
             <div class="row no-wrap q-pa-md">
               <div class="column">
-                <b class="q-mb-sm">Profile Summary</b><q-separator color="primary" />
-                <small>
-                  <ul>
-                    <li>
-                      <b>Phone : {{ userStore?.user?.user?.phone }}</b>
-                    </li>
-                    <li>
-                      <b>Email : {{ userStore?.user?.user?.email }}</b>
-                    </li>
-                    <li>
-                      <b>Role : {{ userStore?.user?.user?.role }}</b>
-                    </li>
-                    <li>
-                      <b>Company : {{ userStore?.user?.user?.company }}</b>
-                    </li>
-                    <li>
-                      <b>Country : {{ userStore?.user?.user?.country }}</b>
-                    </li>
-                  </ul>
-                </small>
+                <MiniProfile :userStore="userStore" />
               </div>
 
               <q-separator vertical inset class="q-mx-lg" />
@@ -76,12 +57,11 @@
       v-model="leftDrawerOpen"
       show-if-above
       bordered
-      :width="180"
+      :width="170"
+      style="position: fixed"
+      :breakpoint="768"
     >
       <q-list>
-        <q-item-label header> MENU LINKS </q-item-label>
-        <hr />
-
         <MenuLink />
       </q-list>
     </q-drawer>
@@ -89,6 +69,8 @@
     <q-page-container>
       <router-view />
     </q-page-container>
+
+    <Footer />
   </q-layout>
 </template>
 
@@ -98,6 +80,8 @@ import MenuLink from "components/MenuLink.vue";
 import { useUserStore } from "src/stores/user-store.js";
 import { useRouter } from "vue-router";
 import { useQuasar } from "quasar";
+import MiniProfile from "src/components/MiniProfile.vue";
+import Footer from "src/components/Footer.vue";
 
 const $q = useQuasar();
 
@@ -126,3 +110,17 @@ const logout = async () => {
   }
 };
 </script>
+
+<style>
+@media screen and (min-width: 768px) {
+  .q-footer {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .menuBtn {
+    display: none;
+  }
+}
+</style>

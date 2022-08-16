@@ -68,7 +68,10 @@
 <script setup>
 import { ref } from "vue";
 import { useQuery } from "vue-query";
-import { baseUrl, headers } from "src/utilities/constants";
+import { fetchData } from "src/utilities/commonMethods";
+import { useUserStore } from "src/stores/user-store";
+
+const userStore = useUserStore();
 
 const pagination = ref({
   sortBy: "desc",
@@ -79,14 +82,8 @@ const pagination = ref({
 
 const filter = ref("");
 
-const fetchCompanyEntries = async () => {
-  const res = await fetch(`${baseUrl}/company_entries`, { headers });
-  const result = await res.json();
-  return result;
-};
-
 const { data, isLoading, isError } = useQuery("company_entries", () =>
-  fetchCompanyEntries()
+  fetchData("company_entries", userStore?.user?.token)
 );
 </script>
 

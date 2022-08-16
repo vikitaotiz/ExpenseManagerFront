@@ -24,6 +24,11 @@ export default {
   components: {
     Doughnut,
   },
+  props: {
+    token: {
+      type: String,
+    },
+  },
 
   data() {
     return {
@@ -48,17 +53,19 @@ export default {
   },
   methods: {
     async fetchCategories() {
-      const res = await fetchData("categories");
+      const res = await fetchData("categories", this.token);
       let arr = [];
       let colors = [];
-      res.forEach((val) => {
-        this.chartData.labels.push(val.title);
-        arr.push(val.products);
-        colors.push(getRandomColor());
-      });
+      if (res && res.length > 0) {
+        res.forEach((val) => {
+          this.chartData.labels.push(val.title);
+          arr.push(val.products);
+          colors.push(getRandomColor());
+        });
 
-      this.chartData.datasets[0].data = arr;
-      this.chartData.datasets[0].backgroundColor = colors;
+        this.chartData.datasets[0].data = arr;
+        this.chartData.datasets[0].backgroundColor = colors;
+      }
     },
   },
 };

@@ -40,11 +40,12 @@ import { ref } from "vue";
 import { useQuery } from "vue-query";
 import { getAll } from "src/utilities/fetchWrapper.js";
 import { useUserStore } from "src/stores/user-store.js";
+import { fetchData } from "src/utilities/commonMethods";
 
 const userStore = useUserStore();
 
 const { data, isLoading, isError, error } = useQuery("companies", () =>
-  getAll("companies", userStore.user?.token)
+  fetchData("companies", userStore.user?.token)
 );
 
 const pagination = ref({

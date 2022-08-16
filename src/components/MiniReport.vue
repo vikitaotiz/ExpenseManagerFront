@@ -78,7 +78,9 @@
 import { ref } from "vue";
 import { useQuery } from "vue-query";
 import { fetchData } from "src/utilities/commonMethods";
+import { useUserStore } from "src/stores/user-store";
 
+const userStore = useUserStore();
 const company_data = ref("");
 let totalPurchasesCost = ref(0);
 let totalClosingStockCost = ref(0);
@@ -88,5 +90,5 @@ const {
   data: companies,
   isLoading: isLoadingCompany,
   isError: isErrorCompany,
-} = useQuery("companies", fetchData("companies"));
+} = useQuery("companies", () => fetchData("companies", userStore?.user?.token));
 </script>
