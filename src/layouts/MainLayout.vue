@@ -14,7 +14,7 @@
         />
 
         <q-toolbar-title>
-          <span class="symb1">Expense Manager</span> <span class="symb2">EXP</span>
+          <span class="symb1">Expense Manager</span> <span class="symb2"><b>EXP</b></span>
         </q-toolbar-title>
 
         <div>
