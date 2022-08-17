@@ -1,22 +1,11 @@
 <template>
   <div>
-    <div v-if="isLoading">Loading...</div>
-    <div v-else-if="isError">An error has occurred</div>
-
-    <q-table
-      v-else
-      grid
-      title="Product Categories"
-      :rows="categories"
-      row-key="title"
-      :filter="filter"
-      hide-header
-      v-model:pagination="pagination"
-    >
-      <template v-slot:top-right>
-        <q-spinner-grid v-if="loading" class="q-mr-lg" size="30px" color="primary" />
-
+    <q-card class="bg-primary text-white q-ma-sm">
+      <q-card-actions>
+        <div>Product Categories</div>
+        <q-space />
         <q-input
+          outlined
           borderless
           dense
           rounded
@@ -29,14 +18,27 @@
             <q-icon name="search" />
           </template>
         </q-input>
-      </template>
+      </q-card-actions>
+    </q-card>
 
+    <div v-if="isLoading">Loading...</div>
+    <div v-else-if="isError">An error has occurred</div>
+
+    <q-table
+      v-else
+      grid
+      :rows="categories"
+      row-key="title"
+      :filter="filter"
+      hide-header
+      v-model:pagination="pagination"
+    >
       <q-separator />
 
       <template v-slot:item="props">
         <router-link
           :to="`/costing_category_products/${props.row.slug}`"
-          class="q-pa-md col-xs-12 col-sm-6 col-md-3"
+          class="q-pa-sm col-xs-12 col-sm-6 col-md-3"
           style="text-decoration: none; color: #029e43"
         >
           <q-card style="cursor: pointer; border-radius: 10px">
