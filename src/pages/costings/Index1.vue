@@ -24,7 +24,6 @@
           v-model="filter"
           placeholder="Search"
           class="q-mr-md"
-          autofocus
         >
           <template v-slot:append>
             <q-icon name="search" />
@@ -37,7 +36,7 @@
       <template v-slot:item="props">
         <router-link
           :to="`/costing_category_products/${props.row.slug}`"
-          class="q-pa-sm col-xs-12 col-sm-6 col-md-3"
+          class="q-pa-md col-xs-12 col-sm-6 col-md-3"
           style="text-decoration: none; color: #029e43"
         >
           <q-card style="cursor: pointer; border-radius: 10px">
