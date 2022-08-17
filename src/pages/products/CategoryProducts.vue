@@ -120,7 +120,13 @@
         <q-card-actions align="right">
           <q-btn flat label="Cancel" color="red" v-close-popup />
           <q-space />
-          <q-btn @click="addProduct" flat label="Add" color="primary" />
+          <q-btn
+            v-if="product.name && product.unit_id"
+            @click="addProduct"
+            flat
+            label="Add"
+            color="primary"
+          />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -135,12 +141,14 @@ import { useQuery, useMutation, useQueryClient } from "vue-query";
 import { getSingle, post } from "src/utilities/fetchWrapper.js";
 import { fetchData, deleteData } from "src/utilities/commonMethods";
 import { storageId } from "src/utilities/constants";
+import { useUserStore } from "src/stores/user-store";
 
 const route = useRoute();
 const filter = ref("");
 const router = useRouter();
 const $q = useQuasar();
 const queryClient = useQueryClient();
+const userStore = useUserStore();
 
 const new_product_dialog = ref(false);
 const loading = ref(false);
@@ -195,18 +203,21 @@ const removeCategory = () => {
   }
 };
 
-const { mutate: deleteCategory } = useMutation((slug) => deleteData(slug, "categories"), {
-  onSuccess: () => {
-    router.push("/categories");
-    $q.notify({
-      message: "Category deleted successfully.",
-      color: "orange",
-      position: "top-right",
-    });
-  },
+const { mutate: deleteCategory } = useMutation(
+  (slug) => deleteData(slug, "categories", userStore?.user?.token),
+  {
+    onSuccess: () => {
+      router.push("/categories");
+      $q.notify({
+        message: "Category deleted successfully.",
+        color: "orange",
+        position: "top-right",
+      });
+    },
 
-  onError: (error) => alert("There was an error!"),
-});
+    onError: (error) => alert("There was an error!"),
+  }
+);
 
 const addProduct = () => {
   let auth = JSON.parse(localStorage.getItem(storageId));
@@ -232,7 +243,10 @@ const { mutate: addNewProduct } = useMutation((data) => post("products", data), 
     });
     new_product_dialog.value = false;
     loading.value = false;
+    clearInput();
   },
+
+  onError: (error) => alert("There was an error, reload the page!"),
 });
 
 const deleteProduct = (row) => {
@@ -254,4 +268,10 @@ const { mutate: removProduct } = useMutation((id) => deleteData(id, "products"),
     loading.value = false;
   },
 });
+
+const clearInput = () => {
+  product.name = "";
+  product.description = "";
+  product.unit_id = "";
+};
 </script>

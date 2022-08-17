@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="q-pa-md">
     <div v-if="isLoading">Loading...</div>
     <div v-else-if="isError">An error has occurred</div>
 
@@ -147,13 +147,20 @@ const { mutate: addNewCategory } = useMutation((data) => post("categories", data
       color: "orange",
       position: "top-right",
     });
+    clearInput();
   },
 
   onError: (error) => {
     alert("Something went wrong.");
     loading.value = false;
+    clearInput();
   },
 });
+
+const clearInput = () => {
+  title.value = "";
+  description.value = "";
+};
 </script>
 
 <style>

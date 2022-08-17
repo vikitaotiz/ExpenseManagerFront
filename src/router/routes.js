@@ -7,7 +7,8 @@ import Categories from "pages/categories/index.vue";
 import CategoryProducts from "pages/products/CategoryProducts.vue";
 import CompanyEntries from "pages/entries/CompanyEntries.vue";
 import AllProducts from "pages/products/index.vue";
-import Costings from "pages/costings/Index.vue";
+import Costings from "pages/costings/Index1.vue";
+import CostingCategoryProducts from "pages/costings/CostingCategoryProducts.vue";
 import Entries from "pages/entries/Index.vue";
 import Settings from "pages/settings/Index.vue";
 import Roles from "pages/roles/Index.vue";
@@ -17,15 +18,17 @@ import Reports from "pages/reports/Index.vue";
 import Parts from "pages/parts/Index.vue";
 import Units from "pages/units/Index.vue";
 
-import auth from "src/middleware/auth";
-
 const routes = [
   {
     path: "/",
     component: () => import("layouts/MainLayout.vue"),
     children: [
-      { path: "", component: Home, meta: { middleware: auth } },
-      { path: "/register", component: Register, meta: { middleware: auth } },
+      {
+        path: "",
+        component: Home,
+        name: "Login",
+      },
+      { path: "/register", component: Register },
       {
         path: "/dashboard",
         component: Dashboard,
@@ -41,6 +44,10 @@ const routes = [
       {
         path: "/company_entries/:slug",
         component: CompanyEntries,
+      },
+      {
+        path: "/costing_category_products/:slug",
+        component: CostingCategoryProducts,
       },
       {
         path: "/all_products",

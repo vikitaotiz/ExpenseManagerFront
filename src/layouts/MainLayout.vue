@@ -13,7 +13,9 @@
           class="menuBtn"
         />
 
-        <q-toolbar-title> Expense Manager </q-toolbar-title>
+        <q-toolbar-title>
+          <span class="symb1">Expense Manager</span> <span class="symb2">EXP</span>
+        </q-toolbar-title>
 
         <div>
           <span v-if="!userStore.user"> version 0.1.1 </span>
@@ -112,6 +114,9 @@ const logout = async () => {
 </script>
 
 <style>
+.symb2 {
+  display: none;
+}
 @media screen and (min-width: 768px) {
   .q-footer {
     display: none;
@@ -121,6 +126,12 @@ const logout = async () => {
 @media screen and (max-width: 768px) {
   .menuBtn {
     display: none;
+  }
+  .symb1 {
+    display: none;
+  }
+  .symb2 {
+    display: block;
   }
 }
 </style>

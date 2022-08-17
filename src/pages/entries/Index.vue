@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="q-pa-md">
     <div v-if="isLoading">Loading...</div>
     <div v-else-if="isError">An error has occurred</div>
 

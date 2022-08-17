@@ -155,7 +155,6 @@ const filterFn = (val, update) => filterCountries(val, update, options, country_
 .box {
   border: 1px solid rgb(196, 194, 194);
   padding: 20px;
-  /* border-radius: 0 9px 0 9px; */
   margin-top: 5%;
   background: white;
 }

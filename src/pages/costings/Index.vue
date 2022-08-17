@@ -391,7 +391,7 @@ const deleteTodayEntry = (row) => {
 };
 </script>
 
-<style>
+<style scoped>
 .myborder {
   border: 1px solid #029e43;
 }

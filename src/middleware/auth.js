@@ -1,7 +1,7 @@
-export default function auth({ next, router }) {
-  if (!localStorage.getItem("exp-user")) {
-    return router.push("/");
-  }
+import { storageId } from "src/utilities/constants";
 
-  return next();
-}
+export default (to, from, next) => {
+  let auth = JSON.parse(localStorage.getItem(storageId))?.user;
+  if (!auth) return false;
+  return next({ name: "Login" });
+};

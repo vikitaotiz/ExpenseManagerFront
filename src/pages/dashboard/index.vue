@@ -21,6 +21,8 @@
 </template>
 
 <script setup>
+import { onMounted } from "vue";
+import { useRouter } from "vue-router";
 import DoughnutChart from "src/components/DoughnutChart.vue";
 import BarChart from "src/components/BarChart.vue";
 import Stats from "src/components/Stats.vue";
@@ -28,5 +30,10 @@ import MiniReport from "src/components/MiniReport.vue";
 
 import { useUserStore } from "src/stores/user-store";
 
+const router = useRouter();
 const userStore = useUserStore();
+
+// onMounted(() => {
+//   if (userStore?.user?.user?.role !== "Admin") router.push("/costings");
+// });
 </script>
