@@ -13,6 +13,7 @@
           v-model="filter"
           placeholder="Search"
           class="q-mr-md"
+          clearable
         >
           <template v-slot:append>
             <q-icon name="search" />
