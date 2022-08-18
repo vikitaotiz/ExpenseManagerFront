@@ -68,7 +68,7 @@ const pagination = ref({
   sortBy: "desc",
   descending: false,
   page: 1,
-  rowsPerPage: 10,
+  rowsPerPage: 8,
 });
 
 const { data: categories, isLoading, isError } = useQuery("categories", () =>
