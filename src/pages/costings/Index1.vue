@@ -42,7 +42,7 @@
           style="text-decoration: none; color: #029e43"
         >
           <q-card style="cursor: pointer; border-radius: 10px">
-            <q-card-actions align="around">
+            <q-card-actions align="around" class="q-pa-md">
               <b><q-icon name="check" /> {{ props.row.title.toUpperCase() }}</b>
               <q-space />
               <small><b>Products </b>: {{ props.row.products }}</small>
