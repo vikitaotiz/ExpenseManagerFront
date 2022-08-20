@@ -3,12 +3,12 @@
     <div v-if="isLoading">Loading...</div>
     <div v-else-if="isError">An error has occurred: {{ error }}</div>
     <q-table
-      v-else-if="data"
-      title="All Roles"
+      v-else
+      title="All Entries"
       :rows="data"
-      :columns="roles_columns"
+      :columns="company_entry_columns"
       :grid="$q.screen.xs"
-      row-key="name"
+      row-key="product"
       separator="cell"
       v-model:pagination="pagination"
       :filter="filter"
@@ -29,7 +29,6 @@
             <q-icon name="search" />
           </template>
         </q-input>
-        <q-btn round dense color="primary" size="small" icon="add" />
       </template>
     </q-table>
   </div>
@@ -39,15 +38,18 @@
 import { ref } from "vue";
 import { useQuery } from "vue-query";
 
-import { getAll } from "src/utilities/fetchWrapper.js";
 import { useUserStore } from "src/stores/user-store.js";
+import { useRouter, useRoute } from "vue-router";
+import { company_entry_columns } from "src/utilities/columns/company_entry_columns";
 import { util_pagination } from "src/utilities/util_pagination";
-import { roles_columns } from "src/utilities/columns/roles_columns";
+import { fetchData } from "src/utilities/commonMethods";
 
 const userStore = useUserStore();
+const router = useRouter();
+const route = useRoute();
 
-const { data, isLoading, isError, error } = useQuery("roles", () =>
-  getAll("roles", userStore.user?.token)
+const { data, isLoading, isError, error } = useQuery("entries", () =>
+  fetchData("entries", userStore?.user?.token)
 );
 
 const pagination = ref(util_pagination(15));

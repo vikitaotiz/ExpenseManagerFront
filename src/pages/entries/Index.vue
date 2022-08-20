@@ -1,101 +1,36 @@
 <template>
   <div class="q-pa-md">
-    <div v-if="isLoading">Loading...</div>
-    <div v-else-if="isError">An error has occurred</div>
+    <div class="text-center">
+      <b>ENTRIES</b>
+    </div>
+    <q-separator />
+    <div class="row">
+      <div class="col-xs-12 col-sm-6 col-md-6 q-mb-sm q-pa-sm">
+        <q-card class="q-pa-md">
+          <router-link to="/today_entries" class="r-links">
+            <q-icon name="content_paste" size="sm" class="q-mr-md" />
+            Today</router-link
+          >
+        </q-card>
+      </div>
 
-    <q-table
-      v-else
-      grid
-      title="Companies/Businesses with entries"
-      :rows="data"
-      row-key="title"
-      :filter="filter"
-      hide-header
-      v-model:pagination="pagination"
-    >
-      <template v-slot:top-right>
-        <q-btn
-          label="View All Companies"
-          size="sm"
-          flat
-          color="primary"
-          to="/companies"
-          class="q-mr-md"
-        />
-        <q-input
-          v-if="data?.length > 1"
-          borderless
-          dense
-          outlined
-          rounded
-          debounce="300"
-          v-model="filter"
-          placeholder="Search"
-          class="q-mr-md"
-          autofocus
-        >
-          <template v-slot:append>
-            <q-icon name="search" />
-          </template>
-        </q-input>
-      </template>
+      <div class="col-xs-12 col-sm-6 col-md-6 q-mb-sm q-pa-sm">
+        <q-card class="q-pa-md">
+          <router-link to="/all_entries" class="r-links">
+            <q-icon name="content_paste" size="sm" class="q-mr-md" />
 
-      <q-separator />
-
-      <template v-slot:item="props">
-        <router-link
-          :to="`/company_entries/${props.row.slug}`"
-          class="q-pa-xs col-xs-12 col-sm-6 col-md-3"
-          style="text-decoration: none"
-        >
-          <q-card style="cursor: pointer" class="mycard">
-            <q-card-section class="text-center">
-              <b>{{ props.row.name.toUpperCase() }}</b>
-            </q-card-section>
-            <q-separator color="orange" />
-            <q-card-section>
-              <small
-                ><b>Entries : {{ props.row.entry_count }}</b></small
-              >
-            </q-card-section>
-          </q-card>
-        </router-link>
-      </template>
-    </q-table>
+            All Entries</router-link
+          >
+        </q-card>
+      </div>
+    </div>
   </div>
 </template>
 
-<script setup>
-import { ref } from "vue";
-import { useQuery } from "vue-query";
-import { fetchData } from "src/utilities/commonMethods";
-import { useUserStore } from "src/stores/user-store";
-
-const userStore = useUserStore();
-
-const pagination = ref({
-  sortBy: "desc",
-  descending: false,
-  page: 1,
-  rowsPerPage: 10,
-});
-
-const filter = ref("");
-
-const { data, isLoading, isError } = useQuery("company_entries", () =>
-  fetchData("company_entries", userStore?.user?.token)
-);
-</script>
-
 <style>
-.mycard {
+.r-links {
   text-decoration: none;
-  background: #029e43;
-  color: white;
-}
-
-.mycard:hover {
-  background: #fff;
   color: #029e43;
+  font-weight: bolder;
 }
 </style>

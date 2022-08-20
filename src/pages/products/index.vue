@@ -6,7 +6,7 @@
       v-else-if="data"
       title="All Products"
       :rows="data"
-      :columns="columns"
+      :columns="product_columns"
       :grid="$q.screen.xs"
       row-key="name"
       separator="cell"
@@ -55,6 +55,8 @@ import { useUserStore } from "src/stores/user-store.js";
 
 import { useQuasar } from "quasar";
 import { useQuery, useMutation, useQueryClient } from "vue-query";
+import { util_pagination } from "src/utilities/util_pagination";
+import { product_columns } from "src/utilities/columns/product_columns";
 
 const userStore = useUserStore();
 const queryClient = useQueryClient();
@@ -64,38 +66,10 @@ const { data, isLoading, isError, error } = useQuery("products", () =>
   getAll("products", userStore.user?.token)
 );
 
-const pagination = ref({
-  sortBy: "desc",
-  descending: false,
-  page: 1,
-  rowsPerPage: 15,
-});
+const pagination = ref(util_pagination(15));
 
 const filter = ref("");
 const loading = ref(false);
-const columns = [
-  {
-    name: "name",
-    required: true,
-    label: "Name",
-    align: "left",
-    field: (row) => row.name,
-    format: (val) => `${val}`,
-    sortable: true,
-  },
-  {
-    name: "description",
-    align: "center",
-    label: "Description",
-    field: "description",
-    sortable: true,
-  },
-  { name: "category", label: "Category", field: "category", sortable: true },
-  { name: "unit", label: "Unit", field: "unit", sortable: true },
-  { name: "company", label: "Company", field: "company", sortable: true },
-  { name: "created_at", label: "Created On", field: "created_at", sortable: true },
-  { name: "action", label: "Action", align: "center" },
-];
 
 const deleteProduct = (row) => {
   const delete_product = confirm("Are you sure you want to delete " + row.name + "?");

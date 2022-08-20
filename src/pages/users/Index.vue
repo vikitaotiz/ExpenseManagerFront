@@ -6,7 +6,7 @@
       v-else-if="data"
       title="All Users"
       :rows="data"
-      :columns="columns"
+      :columns="users_columns"
       :grid="$q.screen.xs"
       row-key="name"
       separator="cell"
@@ -31,6 +31,7 @@
           </template>
         </q-input>
       </template>
+
       <template v-slot:body-cell-edit="props">
         <q-td :props="props">
           <q-icon
@@ -148,16 +149,19 @@
 import { reactive, ref } from "vue";
 import { useQuasar } from "quasar";
 import { useQuery, useMutation, useQueryClient } from "vue-query";
+
 import { getAll } from "src/utilities/fetchWrapper.js";
 import { useUserStore } from "src/stores/user-store.js";
 import { deleteData } from "src/utilities/commonMethods";
 import { countries } from "src/utilities/countries";
+import { users_columns } from "src/utilities/columns/users_columns";
 
 import {
   validatePhone,
   filterCountries,
   combineCodeNumber,
 } from "src/utilities/commonMethods";
+import { util_pagination } from "src/utilities/util_pagination";
 
 const userStore = useUserStore();
 const queryClient = useQueryClient();
@@ -170,12 +174,7 @@ const { data, isLoading, isError, error } = useQuery("users", () =>
   getAll("users", userStore.user?.token)
 );
 
-const pagination = ref({
-  sortBy: "desc",
-  descending: false,
-  page: 1,
-  rowsPerPage: 15,
-});
+const pagination = ref(util_pagination(15));
 
 const filter = ref("");
 const roles = ref([]);
@@ -195,32 +194,6 @@ const user = reactive({
 const phoneNumber = ref("");
 const phoneError = ref("");
 const selected_user = ref("");
-
-const columns = [
-  {
-    name: "name",
-    required: true,
-    label: "Name",
-    align: "left",
-    field: (row) => row.name,
-    format: (val) => `${val}`,
-    sortable: true,
-  },
-  {
-    name: "phone",
-    align: "center",
-    label: "Phone",
-    field: "phone",
-    sortable: true,
-  },
-  { name: "email", label: "Email", field: "email", sortable: true },
-  { name: "role", label: "Role", field: "role", sortable: true },
-  { name: "company", label: "Company", field: "company", sortable: true },
-  { name: "country", label: "Country", field: "country", sortable: true },
-  { name: "created_at", label: "Created On", field: "created_at", sortable: true },
-  { name: "edit", label: "Edit" },
-  { name: "delete", label: "Delete" },
-];
 
 const deleteUser = (row) => {
   const delete_product = confirm("Are you sure?");

@@ -4,9 +4,9 @@
     <div v-else-if="isError">An error has occurred: {{ error }}</div>
     <q-table
       v-else-if="data"
-      :title="`${data?.data?.name?.toUpperCase()} entries`"
-      :rows="data?.data?.entries"
-      :columns="columns"
+      :title="`${data?.company_name?.toUpperCase()} entries`"
+      :rows="data?.data"
+      :columns="today_entry_columns"
       :grid="$q.screen.xs"
       row-key="product"
       separator="cell"
@@ -15,6 +15,7 @@
       dense
     >
       <template v-slot:top-right>
+        <q-spinner-grid v-if="loading" class="q-mr-lg" size="20px" />
         <q-input
           borderless
           dense
@@ -30,82 +31,73 @@
           </template>
         </q-input>
       </template>
+
+      <template v-slot:body-cell-edit="props">
+        <q-td :props="props">
+          <q-icon color="info" name="edit" style="cursor: pointer" size="20px" />
+        </q-td>
+      </template>
+      <template v-slot:body-cell-delete="props">
+        <q-td :props="props">
+          <q-icon
+            color="red"
+            name="delete"
+            @click="deleteEntry(props.row)"
+            style="cursor: pointer"
+            size="20px"
+          />
+        </q-td>
+      </template>
     </q-table>
   </div>
 </template>
 
 <script setup>
 import { ref } from "vue";
-import { useQuery } from "vue-query";
+import { useMutation, useQuery, useQueryClient } from "vue-query";
+import { useQuasar } from "quasar";
+
 import { getSingle } from "src/utilities/fetchWrapper.js";
 import { useUserStore } from "src/stores/user-store.js";
 import { useRouter, useRoute } from "vue-router";
+import { today_entry_columns } from "src/utilities/columns/today_entry_columns";
+import { util_pagination } from "src/utilities/util_pagination";
+import { deleteData, notifyUser } from "src/utilities/commonMethods";
 
 const userStore = useUserStore();
-
 const router = useRouter();
 const route = useRoute();
+const queryClient = useQueryClient();
+const $q = useQuasar();
 
-const { data, isLoading, isError, error } = useQuery(["entries", route.params.slug], () =>
-  getSingle("entries", route.params.slug)
+const { data, isLoading, isError, error } = useQuery(
+  ["today_entries", route.params.slug],
+  () => getSingle("today_entries", route.params.slug)
 );
 
-const pagination = ref({
-  sortBy: "desc",
-  descending: false,
-  page: 1,
-  rowsPerPage: 15,
-});
+const pagination = ref(util_pagination(15));
 
 const filter = ref("");
-const columns = [
-  {
-    name: "product",
-    required: true,
-    label: "Product",
-    align: "left",
-    field: (row) => row.product,
-    format: (val) => `${val}`,
-    sortable: true,
+const loading = ref(false);
+
+const deleteEntry = (row) => {
+  const delete_entry = confirm(`Are you sure you want to delete ${row.product}`);
+  if (delete_entry) {
+    loading.value = true;
+    removeEntry(row.id);
+  }
+};
+
+const { mutate: removeEntry } = useMutation((id) => deleteData(id, "entries"), {
+  onSuccess: (data) => {
+    queryClient.refetchQueries("entries");
+    notifyUser($q, data.message, "top-right", "orange");
+    loading.value = false;
   },
-  {
-    name: "parts",
-    align: "center",
-    label: "Measurement",
-    field: "parts",
-    sortable: true,
+
+  onError: (error) => {
+    notifyUser($q, `There was an error : ${error}`, "top-right", "red");
+    loading.value = false;
   },
-  { name: "units", label: "Unit", field: "units", sortable: true },
-  { name: "unit_price", label: "Unit Price", field: "unit_price", sortable: true },
-  {
-    name: "opening_stock",
-    label: "Opening Stock",
-    field: "opening_stock",
-    sortable: true,
-  },
-  {
-    name: "closing_stock",
-    label: "Closing Stock",
-    field: "closing_stock",
-    sortable: true,
-  },
-  { name: "purchases", label: "Purchases", field: "purchases", sortable: true },
-  {
-    name: "purchases_cost",
-    label: "Purchases Cost",
-    field: "purchases_cost",
-    sortable: true,
-  },
-  {
-    name: "closing_stock_cost",
-    label: "Closing Stock Cost",
-    field: "closing_stock_cost",
-    sortable: true,
-  },
-  { name: "usage", label: "Usage", field: "usage", sortable: true },
-  { name: "usage_cost", label: "Usage Cost", field: "usage_cost", sortable: true },
-  { name: "system_usage", label: "System Usage", field: "system_usage", sortable: true },
-  { name: "user", label: "User", field: "user", sortable: true },
-  { name: "created_at", label: "Created On", field: "created_at", sortable: true },
-];
+});
 </script>

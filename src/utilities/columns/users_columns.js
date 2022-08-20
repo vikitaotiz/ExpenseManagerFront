@@ -1,0 +1,30 @@
+export const users_columns = [
+  {
+    name: "name",
+    required: true,
+    label: "Name",
+    align: "left",
+    field: (row) => row.name,
+    format: (val) => `${val}`,
+    sortable: true,
+  },
+  {
+    name: "phone",
+    align: "center",
+    label: "Phone",
+    field: "phone",
+    sortable: true,
+  },
+  { name: "email", label: "Email", field: "email", sortable: true },
+  { name: "role", label: "Role", field: "role", sortable: true },
+  { name: "company", label: "Company", field: "company", sortable: true },
+  { name: "country", label: "Country", field: "country", sortable: true },
+  {
+    name: "created_at",
+    label: "Created On",
+    field: "created_at",
+    sortable: true,
+  },
+  { name: "edit", label: "Edit" },
+  { name: "delete", label: "Delete" },
+];

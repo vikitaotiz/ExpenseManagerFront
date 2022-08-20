@@ -91,3 +91,12 @@ export const getRandomColor = () => {
   }
   return color;
 };
+
+export const notifyUser = (q, message, position, color, actions = []) => {
+  q.notify({
+    message,
+    color,
+    position,
+    actions,
+  });
+};

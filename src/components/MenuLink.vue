@@ -37,12 +37,4 @@ const links = ref(app_links);
 const userStore = useUserStore();
 
 const readEntries = () => entryStore.clearEntry();
-
-// onMounted(() => {
-//   if (userStore?.user?.user?.role !== "Admin") {
-//     links.value = links.value.filter(
-//       (val) => val.to !== "/dashboard" && val.to !== "/settings"
-//     );
-//   }
-// });
 </script>

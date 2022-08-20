@@ -15,6 +15,11 @@ export const app_links = [
     icon: "ac_unit",
   },
   {
+    to: "/spilages",
+    text: "Spilages",
+    icon: "delete",
+  },
+  {
     to: "/settings",
     text: "Settings",
     icon: "settings",

@@ -63,61 +63,37 @@
       </template>
     </q-table>
 
-    <q-dialog v-model="new_category_dialog" persistent>
-      <q-card style="width: 700px; max-width: 80vw">
-        <q-card-section> <div class="text-h6">Add New Category</div> </q-card-section
-        ><q-separator class="q-mb-sm" />
-
-        <q-card-section class="q-pt-none">
-          <q-input
-            dense
-            outlined
-            v-model="title"
-            label="Category name..."
-            type="text"
-            class="q-mb-md"
-          />
-          <q-input
-            v-model="description"
-            outlined
-            type="textarea"
-            label="Category description (optional)..."
-          />
-        </q-card-section>
-
-        <q-card-actions align="right">
-          <q-btn flat label="Cancel" color="red" v-close-popup />
-          <q-space />
-          <q-btn @click="addCategory" flat label="Add" color="primary" />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
+    <NewCategoryDialog
+      v-model="new_category_dialog"
+      :category="category"
+      @addCategory="addCategory"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { reactive, ref } from "vue";
 import { useQuasar } from "quasar";
 import { useQuery, useMutation, useQueryClient } from "vue-query";
-import { fetchData } from "src/utilities/commonMethods";
+
+import { fetchData, notifyUser } from "src/utilities/commonMethods";
 import { post } from "src/utilities/fetchWrapper";
 import { useUserStore } from "src/stores/user-store";
+import { util_pagination } from "src/utilities/util_pagination";
+import NewCategoryDialog from "src/components/Categories/NewCategoryDialog.vue";
 
 const userStore = useUserStore();
-
 const $q = useQuasar();
 const queryClient = useQueryClient();
 
-const pagination = ref({
-  sortBy: "desc",
-  descending: false,
-  page: 1,
-  rowsPerPage: 10,
-});
+const pagination = ref(util_pagination(10));
 
 const filter = ref("");
-const title = ref("");
-const description = ref("");
+const category = reactive({
+  title: "",
+  description: "",
+});
+
 const new_category_dialog = ref(false);
 const loading = ref(false);
 
@@ -129,8 +105,8 @@ const openCategoryDialog = () => (new_category_dialog.value = true);
 
 const addCategory = async () => {
   let data = {
-    title: title.value,
-    description: description.value,
+    title: category.title.trim(),
+    description: category.description,
   };
 
   if (data.title) addNewCategory(data);
@@ -139,27 +115,29 @@ const addCategory = async () => {
 
 const { mutate: addNewCategory } = useMutation((data) => post("categories", data), {
   onSuccess: (data) => {
-    queryClient.refetchQueries("categories");
-    new_category_dialog.value = false;
-    loading.value = false;
-    $q.notify({
-      message: "Category created successfully.",
-      color: "orange",
-      position: "top-right",
-    });
-    clearInput();
+    if (data.status === "success") {
+      queryClient.refetchQueries("categories");
+      new_category_dialog.value = false;
+      notifyUser($q, data.message, "top-right", "orange");
+      loading.value = false;
+      clearInput();
+    }
+
+    if (data.status === "error") {
+      loading.value = false;
+      notifyUser($q, data.message, "top-right", "red");
+    }
   },
 
   onError: (error) => {
-    alert("Something went wrong.");
+    notifyUser($q, `There was an error : ${error}`, "top-right", "red");
     loading.value = false;
-    clearInput();
   },
 });
 
 const clearInput = () => {
-  title.value = "";
-  description.value = "";
+  category.title = "";
+  category.description = "";
 };
 </script>
 

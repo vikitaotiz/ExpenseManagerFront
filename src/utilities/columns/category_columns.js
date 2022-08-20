@@ -1,0 +1,43 @@
+export const category_columns = [
+  {
+    name: "name",
+    required: true,
+    label: "Name",
+    align: "left",
+    field: (row) => row.name,
+    format: (val) => `${val}`,
+    sortable: true,
+  },
+  {
+    name: "product_count",
+    align: "center",
+    label: "Numbers of Products",
+    field: "product_count",
+    sortable: true,
+  },
+  {
+    name: "store_count",
+    align: "center",
+    label: "Numbers of store",
+    field: "store_count",
+    sortable: true,
+  },
+  {
+    name: "users",
+    align: "center",
+    label: "Numbers of Users",
+    field: "users",
+    sortable: true,
+  },
+  { name: "phone", label: "Phone", field: "phone", sortable: true },
+  { name: "email", label: "Email", field: "email", sortable: true },
+  { name: "address", label: "Address", field: "address", sortable: true },
+  { name: "city", label: "City", field: "city", sortable: true },
+  { name: "country", label: "Country", field: "country", sortable: true },
+  {
+    name: "created_at",
+    label: "Created On",
+    field: "created_at",
+    sortable: true,
+  },
+];

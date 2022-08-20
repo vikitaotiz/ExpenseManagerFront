@@ -71,122 +71,14 @@
       </template>
     </q-table>
 
-    <q-dialog v-model="entryDialog" persistent>
-      <q-card style="width: 700px; max-width: 80vw">
-        <q-card-actions>
-          <div class="text-h6" text-color="primary">
-            {{ product.name.toUpperCase() }}
-          </div>
-          <q-space />
-          <span>Units : {{ product.unit }}</span>
-        </q-card-actions>
-        <q-separator />
-
-        <q-card-section class="q-pt-none">
-          <small
-            >Description :
-            {{
-              product.description ? product.description : "No product description."
-            }}</small
-          >
-          <q-separator />
-          <div class="row">
-            <div class="col-xs-12 col-sm-3 col-md-3">
-              <q-input
-                type="number"
-                outlined
-                v-model="entry.unit_price"
-                label="Unit Price"
-                dense
-                class="q-ma-md"
-              />
-            </div>
-            <div class="col-xs-12 col-sm-3 col-md-3">
-              <q-input
-                v-if="entry.unit_price"
-                type="number"
-                outlined
-                v-model="entry.opening_stock"
-                label="Opening Stock"
-                dense
-                class="q-ma-md"
-              />
-            </div>
-            <div class="col-xs-12 col-sm-3 col-md-3">
-              <q-input
-                v-if="entry.opening_stock"
-                type="number"
-                outlined
-                v-model="entry.closing_stock"
-                label="Closing Stock"
-                dense
-                class="q-ma-md"
-              />
-            </div>
-            <div class="col-xs-12 col-sm-3 col-md-3">
-              <q-input
-                v-if="entry.closing_stock"
-                type="number"
-                outlined
-                v-model="entry.purchases"
-                label="Purchases"
-                dense
-                class="q-ma-md"
-              />
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-xs-12 col-sm-4 col-md-4">
-              <q-input
-                v-if="entry.purchases"
-                type="number"
-                outlined
-                v-model="entry.usage"
-                label="Usage"
-                dense
-                class="q-ma-md"
-              />
-            </div>
-            <div class="col-xs-12 col-sm-4 col-md-4">
-              <q-input
-                v-if="entry.usage"
-                type="number"
-                outlined
-                v-model="entry.system_usage"
-                label="Sytem usage"
-                dense
-                class="q-ma-md"
-              />
-            </div>
-            <div class="col-xs-12 col-sm-4 col-md-4">
-              <q-select
-                v-if="entry.system_usage"
-                clearable
-                :options="parts"
-                option-label="name"
-                option-value="name"
-                outlined
-                v-model="entry.part"
-                label="Measurements"
-                dense
-                class="q-ma-md"
-              />
-            </div>
-          </div>
-        </q-card-section>
-
-        <q-card-actions align="right">
-          <q-btn flat label="Cancel" color="red" v-close-popup /><q-space />
-          <q-btn
-            v-if="entry.part"
-            flat
-            label="Submit Entry"
-            color="primary"
-            @click="submitEntry()"
-          />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
+    <NewEntryDialog
+      v-model="entryDialog"
+      @submitEntry="submitEntry()"
+      :product="product"
+      :entry="entry"
+      :parts="parts"
+      :errorMessage="errorMessage"
+    />
   </div>
 </template>
 
@@ -194,14 +86,19 @@
 import { reactive, ref } from "vue";
 import { useQuery, useMutation } from "vue-query";
 import { useQuasar } from "quasar";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
+
 import { getSingle } from "src/utilities/fetchWrapper";
 import { useEntryStore } from "src/stores/entry-store";
-import { createNewEntry, fetchData } from "src/utilities/commonMethods";
+import { createNewEntry, fetchData, notifyUser } from "src/utilities/commonMethods";
 import { useUserStore } from "src/stores/user-store";
+import { util_pagination } from "src/utilities/util_pagination";
+import NewEntryDialog from "src/components/EntryCostings/NewEntryDialog.vue";
 
 const route = useRoute();
+const router = useRouter();
 const filter = ref("");
+const errorMessage = ref("");
 const loading = ref(false);
 const entryDialog = ref(false);
 const product = ref("");
@@ -209,12 +106,7 @@ const $q = useQuasar();
 const entryStore = useEntryStore();
 const userStore = useUserStore();
 
-const pagination = ref({
-  sortBy: "desc",
-  descending: false,
-  page: 1,
-  rowsPerPage: 10,
-});
+const pagination = ref(util_pagination(10));
 
 const { data: category, isLoading, isError } = useQuery(
   ["categories", route.params.slug],
@@ -270,19 +162,33 @@ const { mutate: addEntry } = useMutation(
   (data) => createNewEntry(data, userStore?.user?.token),
   {
     onSuccess: (data) => {
-      entryDialog.value = false;
-      loading.value = false;
-      entryStore.addEntry();
-      $q.notify({
-        message: "Entry created successfully.",
-        color: "orange",
-        position: "top-right",
-      });
+      if (data.status === "success") {
+        entryDialog.value = false;
+        loading.value = false;
+        entryStore.addEntry();
+        const actions = [
+          {
+            label: "View Entry",
+            color: "white",
+            handler: () => {
+              router.push(`/company_entries/${data.company_slug}`);
+              entryStore.clearEntry();
+            },
+          },
+        ];
+        notifyUser($q, data.message, "top-right", "blue", actions);
+      }
+
+      if (data.status === "error") {
+        loading.value = false;
+        errorMessage.value = data.message;
+        notifyUser($q, data.message, "top-right", "red");
+      }
     },
 
     onError: (error) => {
-      alert("There was an error : " + error);
-      entryDialog.value = false;
+      notifyUser($q, `There was an error : ${error}`, "top-right", "red");
+      loading.value = false;
     },
   }
 );

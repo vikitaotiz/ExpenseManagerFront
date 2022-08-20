@@ -56,7 +56,7 @@
     <q-table
       v-else
       :rows="category?.data?.products"
-      :columns="columns"
+      :columns="category_product_columns"
       :grid="$q.screen.xs"
       row-key="name"
       separator="cell"
@@ -138,10 +138,13 @@ import { ref, reactive } from "vue";
 import { useQuasar } from "quasar";
 import { useRoute, useRouter } from "vue-router";
 import { useQuery, useMutation, useQueryClient } from "vue-query";
+
 import { getSingle, post } from "src/utilities/fetchWrapper.js";
 import { fetchData, deleteData } from "src/utilities/commonMethods";
 import { storageId } from "src/utilities/constants";
 import { useUserStore } from "src/stores/user-store";
+import { category_product_columns } from "src/utilities/columns/category_product_columns";
+import { util_pagination } from "src/utilities/util_pagination";
 
 const route = useRoute();
 const filter = ref("");
@@ -166,35 +169,7 @@ const { isLoading, isError, data: category, error } = useQuery(
 
 const { data: units } = useQuery("units", () => fetchData("units"));
 
-const columns = [
-  {
-    name: "name",
-    required: true,
-    label: "Name",
-    align: "left",
-    field: (row) => row.name,
-    format: (val) => `${val}`,
-    sortable: true,
-  },
-  {
-    name: "description",
-    align: "center",
-    label: "Description",
-    field: "description",
-    sortable: true,
-  },
-  { name: "unit", label: "Unit", field: "unit", sortable: true },
-  { name: "company", label: "Company", field: "company", sortable: true },
-  { name: "created_at", label: "Time", field: "created_at", sortable: true },
-  { name: "action", label: "Action", align: "center" },
-];
-
-const pagination = ref({
-  sortBy: "desc",
-  descending: false,
-  page: 1,
-  rowsPerPage: 10,
-});
+const pagination = ref(util_pagination(10));
 
 const removeCategory = () => {
   if (route.params.slug) {
@@ -253,11 +228,11 @@ const deleteProduct = (row) => {
   const delete_product = confirm("Are you sure?");
   if (delete_product) {
     loading.value = true;
-    removProduct(row.id);
+    removeProduct(row.id);
   }
 };
 
-const { mutate: removProduct } = useMutation((id) => deleteData(id, "products"), {
+const { mutate: removeProduct } = useMutation((id) => deleteData(id, "products"), {
   onSuccess: (data) => {
     queryClient.refetchQueries(["categories", route.params.slug]);
     $q.notify({

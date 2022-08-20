@@ -6,7 +6,7 @@
       v-else-if="data"
       title="Measurement Units"
       :rows="data"
-      :columns="columns"
+      :columns="units_columns"
       :grid="$q.screen.xs"
       row-key="title"
       separator="cell"
@@ -93,6 +93,8 @@ import { useQuery, useMutation, useQueryClient } from "vue-query";
 import { getAll } from "src/utilities/fetchWrapper.js";
 import { useUserStore } from "src/stores/user-store.js";
 import { baseUrl, headers } from "src/utilities/constants";
+import { util_pagination } from "src/utilities/util_pagination";
+import { units_columns } from "src/utilities/columns/units_columns";
 
 const userStore = useUserStore();
 const queryClient = useQueryClient();
@@ -101,31 +103,12 @@ const { data, isLoading, isError, error } = useQuery("units", () =>
   getAll("units", userStore.user?.token)
 );
 
-const pagination = ref({
-  sortBy: "desc",
-  descending: false,
-  page: 1,
-  rowsPerPage: 15,
-});
+const pagination = ref(util_pagination(15));
 
 const filter = ref("");
 const unitDialog = ref(false);
 const title = ref("");
 const symbol = ref("");
-
-const columns = [
-  {
-    name: "title",
-    required: true,
-    label: "Title",
-    align: "left",
-    field: (row) => row.title,
-    format: (val) => `${val}`,
-    sortable: true,
-  },
-  { name: "symbol", label: "Symbol", field: "symbol", sortable: true },
-  { name: "created_at", label: "Created On", field: "created_at", sortable: true },
-];
 
 const addMeasurementUnit = () => {
   if (title.value && symbol.value)
