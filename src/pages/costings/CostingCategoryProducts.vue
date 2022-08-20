@@ -1,6 +1,6 @@
 <template>
   <div class="q-pa-md">
-    <q-card class="bg-primary text-white">
+    <q-card class="bg-orange text-white">
       <q-card-actions>
         <q-btn
           @click="$router.back()"
@@ -60,8 +60,8 @@
                 >
               </q-item>
               <q-item>
-                <q-item-section>Units</q-item-section>
-                <q-item-section avatar>
+                <q-item-section class="text-blue">Units</q-item-section>
+                <q-item-section avatar class="text-blue">
                   {{ props.row.unit }}
                 </q-item-section>
               </q-item>

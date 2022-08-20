@@ -1,6 +1,6 @@
 <template>
   <div>
-    <q-card class="bg-primary text-white q-ma-sm">
+    <q-card flat class="bg-orange text-white q-ma-sm">
       <q-card-actions>
         <div>Product Categories</div>
         <q-space />
@@ -44,9 +44,12 @@
         >
           <q-card style="cursor: pointer; border-radius: 10px">
             <q-card-actions align="around" class="q-pa-md">
-              <b><q-icon name="check" /> {{ props.row.title.toUpperCase() }}</b>
+              <b
+                ><q-icon name="check" size="sm" class="q-mr-md" />
+                {{ props.row.title.toUpperCase() }}</b
+              >
               <q-space />
-              <small><b>Products </b>: {{ props.row.products }}</small>
+              <small class="text-blue"><b>Products </b>: {{ props.row.products }}</small>
             </q-card-actions>
           </q-card>
         </router-link>
