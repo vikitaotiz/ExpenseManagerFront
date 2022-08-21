@@ -77,61 +77,26 @@
       </template>
     </q-table>
 
-    <q-dialog v-model="new_product_dialog" persistent>
-      <q-card style="width: 700px; max-width: 80vw">
-        <q-card-section> <div class="text-h6">Add New Product</div> </q-card-section
-        ><q-separator class="q-mb-sm" />
-
-        <q-card-section class="q-pt-none">
-          <div class="row">
-            <div class="col">
-              <q-input
-                dense
-                outlined
-                v-model="product.name"
-                label="Product name..."
-                type="text"
-                class="q-ma-sm"
-              />
-            </div>
-            <div class="col">
-              <q-select
-                clearable
-                :options="units"
-                option-label="title"
-                outlined
-                v-model="product.unit_id"
-                label="Measurement Unit"
-                dense
-                class="q-ma-sm"
-              />
-            </div>
-          </div>
-
-          <q-input
-            v-model="product.description"
-            outlined
-            type="textarea"
-            label="Product description (optional)..."
-            class="q-ma-sm"
-          />
-        </q-card-section>
-
-        <q-card-actions align="right">
-          <q-btn flat label="Cancel" color="red" v-close-popup />
-          <q-space />
-          <q-btn
-            v-if="product.name && product.unit_id"
-            @click="addProduct"
-            flat
-            label="Add"
-            color="primary"
-          />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
+    <NewCategoryProductDialog
+      v-model="new_product_dialog"
+      :product="product"
+      :units="units"
+      :stores="stores"
+      @addProduct="addProduct"
+      :errorMessage="errorMessage"
+    />
   </div>
 </template>
+
+<script>
+import { useUserStore as store } from "src/stores/user-store";
+export default {
+  preFetch({ currentRoute, previousRoute, redirect }) {
+    const userStore = store();
+    !userStore?.user && redirect({ path: "/" });
+  },
+};
+</script>
 
 <script setup>
 import { ref, reactive } from "vue";
@@ -140,11 +105,12 @@ import { useRoute, useRouter } from "vue-router";
 import { useQuery, useMutation, useQueryClient } from "vue-query";
 
 import { getSingle, post } from "src/utilities/fetchWrapper.js";
-import { fetchData, deleteData } from "src/utilities/commonMethods";
+import { fetchData, deleteData, notifyUser } from "src/utilities/commonMethods";
 import { storageId } from "src/utilities/constants";
 import { useUserStore } from "src/stores/user-store";
 import { category_product_columns } from "src/utilities/columns/category_product_columns";
 import { util_pagination } from "src/utilities/util_pagination";
+import NewCategoryProductDialog from "src/components/Categories/NewCategoryProductDialog.vue";
 
 const route = useRoute();
 const filter = ref("");
@@ -155,19 +121,27 @@ const userStore = useUserStore();
 
 const new_product_dialog = ref(false);
 const loading = ref(false);
-
+const errorMessage = ref("");
 const product = reactive({
   name: "",
+  buying_price: 0,
+  selling_price: 0,
   description: "",
   unit_id: "",
+  store_id: "",
+  category_id: "",
 });
 
 const { isLoading, isError, data: category, error } = useQuery(
   ["categories", route.params.slug],
-  () => getSingle("categories", route.params.slug)
+  () => getSingle("categories", route.params.slug),
+  {
+    onSuccess: (data) => (product.category_id = data.data.id),
+  }
 );
 
 const { data: units } = useQuery("units", () => fetchData("units"));
+const { data: stores } = useQuery("stores", () => fetchData("stores"));
 
 const pagination = ref(util_pagination(10));
 
@@ -181,16 +155,13 @@ const removeCategory = () => {
 const { mutate: deleteCategory } = useMutation(
   (slug) => deleteData(slug, "categories", userStore?.user?.token),
   {
-    onSuccess: () => {
+    onSuccess: (data) => {
       router.push("/categories");
-      $q.notify({
-        message: "Category deleted successfully.",
-        color: "orange",
-        position: "top-right",
-      });
+      notifyUser($q, data.message, "top-right", "orange");
     },
 
-    onError: (error) => alert("There was an error!"),
+    onError: (error) =>
+      notifyUser($q, `There was an error: ${error}`, "top-right", "red"),
   }
 );
 
@@ -199,8 +170,11 @@ const addProduct = () => {
   let data = {
     name: product.name,
     description: product.description,
-    slug: route.params?.slug,
+    category_id: product.category_id,
+    buying_price: product.buying_price,
+    selling_price: product.selling_price,
     unit_id: product.unit_id?.id,
+    store_id: product.store_id?.id,
     company_id: auth.user?.company_id,
   };
 
@@ -210,18 +184,27 @@ const addProduct = () => {
 
 const { mutate: addNewProduct } = useMutation((data) => post("products", data), {
   onSuccess: (data) => {
-    queryClient.refetchQueries(["categories", route.params.slug]);
-    $q.notify({
-      message: "Product created successfully.",
-      color: "orange",
-      position: "top-right",
-    });
+    if (data.status === "success") {
+      queryClient.refetchQueries(["categories", route.params.slug]);
+      new_product_dialog.value = false;
+      loading.value = false;
+      clearInput();
+      notifyUser($q, data.message, "top-right", "orange");
+    }
+
+    if (data.status === "error") {
+      loading.value = false;
+      errorMessage.value = data.message;
+      notifyUser($q, data.message, "top-right", "red");
+    }
+  },
+
+  onError: (error) => {
     new_product_dialog.value = false;
     loading.value = false;
     clearInput();
+    notifyUser($q, `There was an error: ${error}`, "top-right", "red");
   },
-
-  onError: (error) => alert("There was an error, reload the page!"),
 });
 
 const deleteProduct = (row) => {
@@ -234,13 +217,20 @@ const deleteProduct = (row) => {
 
 const { mutate: removeProduct } = useMutation((id) => deleteData(id, "products"), {
   onSuccess: (data) => {
-    queryClient.refetchQueries(["categories", route.params.slug]);
-    $q.notify({
-      message: "Product deleted successfully.",
-      color: "orange",
-      position: "top-right",
-    });
+    if (data.status === "success") {
+      queryClient.refetchQueries(["categories", route.params.slug]);
+      loading.value = false;
+      notifyUser($q, data.message, "top-right", "orange");
+    }
+    if (data.status === "error") {
+      loading.value = false;
+      notifyUser($q, data.message, "top-right", "red");
+    }
+  },
+
+  onError: (error) => {
     loading.value = false;
+    notifyUser($q, `There was an error: ${error}`, "top-right", "red");
   },
 });
 
@@ -248,5 +238,6 @@ const clearInput = () => {
   product.name = "";
   product.description = "";
   product.unit_id = "";
+  product.store_id = "";
 };
 </script>

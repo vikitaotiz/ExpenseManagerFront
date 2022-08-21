@@ -5,55 +5,24 @@
       <q-btn to="/register" unelevated color="primary" label="Register" icon="edit" />
     </q-btn-group>
     <div class="box">
-      <q-select
-        dense
-        outlined
-        v-model="country"
-        use-input
-        input-debounce="0"
-        label="Select Country"
-        :options="options"
-        option-label="name"
-        @filter="filterFn"
-        class="q-mb-md"
-        ><template v-slot:no-option>
-          <q-item>
-            <q-item-section class="text-grey"> No results </q-item-section>
-          </q-item>
-        </template>
-      </q-select>
-      <div class="q-mb-md">
-        <code style="color: grey">e.g 0XXXXXXXXX - (start with zero)</code>
-        <q-input
-          dense
-          type="tel"
-          outlined
-          v-model="phoneNumber"
-          label="Enter your phone..."
-        >
-          <template v-slot:prepend>
-            <code style="color: #029e43; font-size: 15px; padding-top: 11px">{{
-              country?.dial_code
-            }}</code>
-          </template>
-        </q-input>
-        <small style="color: red"> {{ phoneError }}</small>
-      </div>
+      <PhoneInput :user="user" />
       <q-input
         dense
         outlined
-        v-model="password"
+        v-model="user.password"
         label="Enter your password..."
         type="password"
         class="q-mb-md"
       />
+
+      <small style="color: red">{{ errorMessage }}</small>
 
       <div style="text-align: center">
         <q-spinner-grid v-if="loading" size="40px" color="primary" label="Loading..." />
       </div>
 
       <q-btn
-        v-if="!loading && country"
+        v-if="!loading && user.country"
         @click="login"
         class="full-width"
         color="primary"
@@ -65,66 +34,84 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
-import { useUserStore } from "src/stores/user-store.js";
+import { reactive, ref } from "vue";
 import { useRouter } from "vue-router";
-import { countries } from "src/utilities/countries";
+import { useQuasar } from "quasar";
+import { useMutation } from "vue-query";
+
+import { useUserStore } from "src/stores/user-store.js";
+import PhoneInput from "src/components/PhoneInput.vue";
 import {
   validatePhone,
-  filterCountries,
   combineCodeNumber,
+  notifyUser,
 } from "src/utilities/commonMethods";
-import { useQuasar } from "quasar";
+import { storageId } from "src/utilities/constants";
 
 const router = useRouter();
 const userStore = useUserStore();
 const $q = useQuasar();
 
-const tab = ref("login");
+const errorMessage = ref("");
 const loading = ref(false);
-const phoneNumber = ref("0714581597");
-const password = ref("password");
-
-const country_data = countries();
-const options = ref(country_data);
-const country = ref(null);
-const phoneError = ref("");
+const user = reactive({
+  phoneNumber: "0714581597",
+  password: "password",
+  country: null,
+  phoneError: "",
+});
 
 const login = async () => {
   let phone = null;
 
-  if (!validatePhone(phoneNumber.value)) phoneError.value = "The number is invalid.";
-  else if (country.value && phoneNumber.value && password.value) {
-    phoneError.value = "";
-    loading.value = true;
+  if (!validatePhone(user.phoneNumber)) user.phoneError = "The number is invalid.";
+  else if (user.country && user.phoneNumber && user.password) {
+    user.phoneError = "";
 
-    phone = combineCodeNumber(phoneNumber, country);
+    phone = combineCodeNumber(user.phoneNumber, user.country.dial_code);
 
     let data = {
-      country: country.value.name,
+      country: user.country.name,
       phone: phone.replace(/\s/g, ""),
-      password: password.value,
+      password: user.password,
     };
 
-    const res = await userStore.loginRegister(data, "login");
-    if (res.status === 201) {
-      router.push("/dashboard");
-      loading.value = false;
-      $q.notify({
-        message: "Logged in successfully.",
-        color: "orange",
-        position: "top",
-      });
-    } else {
-      loading.value = false;
-      alert("There was an error!");
-    }
+    loginFn(data);
+    loading.value = true;
   } else {
     alert("Country, Phone and Password are required!");
   }
 };
+const { mutate: loginFn } = useMutation(
+  (data) => userStore.loginRegister(data, "login"),
+  {
+    onSuccess: (data) => {
+      if (data.status === "success") {
+        const result = {
+          token: data.token,
+          user: data.user,
+        };
+        userStore.setUser(result);
+        localStorage.setItem(storageId, JSON.stringify(result));
+        loading.value = false;
+        notifyUser($q, data.message, "top-right", "orange");
+        router.push("/dashboard");
+      }
 
-const filterFn = (val, update) => filterCountries(val, update, options, country_data);
+      if (data.status === "error") {
+        loading.value = false;
+        errorMessage.value = data.message;
+        notifyUser($q, data.message, "top-right", "red");
+      }
+    },
+
+    onError: (error) => {
+      loading.value = false;
+      errorMessage.value = error;
+      notifyUser($q, `There was an error: ${error}`, "top-right", "red");
+    },
+  }
+);
 </script>
 
 <style>

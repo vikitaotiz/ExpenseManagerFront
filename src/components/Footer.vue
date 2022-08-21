@@ -1,6 +1,6 @@
 <template>
   <q-footer reveal>
-    <q-tabs dense>
+    <q-tabs dense indicator-color="yellow">
       <q-route-tab
         v-for="link in links"
         :key="link.text"

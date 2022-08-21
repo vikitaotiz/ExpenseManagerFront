@@ -78,15 +78,17 @@
 
 <script setup>
 import { ref } from "vue";
+import { useQuasar } from "quasar";
+import { useRouter } from "vue-router";
+import { useMutation } from "vue-query";
+
 import MenuLink from "components/MenuLink.vue";
 import { useUserStore } from "src/stores/user-store.js";
-import { useRouter } from "vue-router";
-import { useQuasar } from "quasar";
 import MiniProfile from "src/components/MiniProfile.vue";
 import Footer from "src/components/Footer.vue";
+import { notifyUser } from "src/utilities/commonMethods";
 
 const $q = useQuasar();
-
 const userStore = useUserStore();
 const router = useRouter();
 
@@ -95,22 +97,29 @@ const leftDrawerOpen = ref(false);
 const toggleLeftDrawer = () => (leftDrawerOpen.value = !leftDrawerOpen.value);
 
 const logout = async () => {
+  logoutFn();
   loading.value = true;
-  const res = await userStore.logout();
-
-  if (res.status === 200) {
-    router.push("/");
-    loading.value = false;
-    $q.notify({
-      message: "Logged out successfully.",
-      color: "orange",
-      position: "top-right",
-    });
-  } else {
-    alert("There was an error.");
-    loading.value = false;
-  }
 };
+
+const { mutate: logoutFn } = useMutation(() => userStore.logout(), {
+  onSuccess: (data) => {
+    if (data.status === "success") {
+      loading.value = false;
+      notifyUser($q, data.message, "top-right", "orange");
+      router.push("/");
+    }
+
+    if (data.status === "error") {
+      loading.value = false;
+      notifyUser($q, data.message, "top-right", "red");
+    }
+  },
+
+  onError: (error) => {
+    loading.value = false;
+    notifyUser($q, `There was an error: ${error}`, "top-right", "red");
+  },
+});
 </script>
 
 <style>

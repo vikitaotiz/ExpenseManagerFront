@@ -4,7 +4,7 @@ const auth = JSON.parse(localStorage.getItem(storageId));
 headers.Authorization = `Bearer ${auth?.token}`;
 
 export const fetchData = async (exp_url, token) => {
-  if (!auth?.token) headers.Authorization = `Bearer ${token}`;
+  !auth?.token ? (headers.Authorization = `Bearer ${token}`) : headers;
 
   const res = await fetch(`${baseUrl}/${exp_url}`, { headers });
   const results = await res.json();
@@ -12,7 +12,7 @@ export const fetchData = async (exp_url, token) => {
 };
 
 export const createNewEntry = async (data, token) => {
-  if (!auth?.token) headers.Authorization = `Bearer ${token}`;
+  !auth?.token ? (headers.Authorization = `Bearer ${token}`) : headers;
   data.user_id = auth?.user?.id;
   data.company_id = auth?.user?.company_id;
 
@@ -27,7 +27,7 @@ export const createNewEntry = async (data, token) => {
 };
 
 export const deleteData = async (id, exp_url, token) => {
-  if (!auth?.token) headers.Authorization = `Bearer ${token}`;
+  !auth?.token ? (headers.Authorization = `Bearer ${token}`) : headers;
 
   const res = await fetch(`${baseUrl}/${exp_url}/${id}`, {
     method: "DELETE",
@@ -70,16 +70,16 @@ export const filterCountries = (val, update, options, country_data) => {
   });
 };
 
-export const combineCodeNumber = (phoneNumber, country) => {
+export const combineCodeNumber = (phoneNumber, dial_code) => {
   let phone = null;
-  if (phoneNumber.value.split("")[0] === "0") {
+  if (phoneNumber.split("")[0] === "0") {
     phone =
-      country.value.dial_code +
-      phoneNumber.value
+      dial_code +
+      phoneNumber
         .split("")
         .filter((v) => v !== "0")
         .join("");
-  } else phone = country.value.dial_code + phoneNumber.value;
+  } else phone = dial_code + phoneNumber;
   return phone;
 };
 

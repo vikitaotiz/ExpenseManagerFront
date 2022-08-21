@@ -36,7 +36,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { useQuery } from "vue-query";
 
 import { useUserStore } from "src/stores/user-store.js";
@@ -53,4 +53,14 @@ const { data, isLoading, isError, error } = useQuery("companies", () =>
 const pagination = ref(util_pagination(15));
 
 const filter = ref("");
+</script>
+
+<script>
+import { useUserStore as store } from "src/stores/user-store";
+export default {
+  preFetch({ currentRoute, previousRoute, redirect }) {
+    const store = useUserStore();
+    !store?.user && redirect({ path: "/" });
+  },
+};
 </script>

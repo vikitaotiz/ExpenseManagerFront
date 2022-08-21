@@ -21,13 +21,7 @@ export const useUserStore = defineStore("auth", {
       });
 
       const result = await res.json();
-
-      if (res.status === 201) {
-        this.user = result;
-        localStorage.setItem(storageId, JSON.stringify(result));
-      }
-
-      return { status: res.status, result };
+      return result;
     },
 
     async logout() {
@@ -41,16 +35,9 @@ export const useUserStore = defineStore("auth", {
         });
 
         const result = await res.json();
-
-        if (res.status === 200) {
-          this.user = null;
-          localStorage.removeItem(storageId);
-        }
-
-        return {
-          status: res.status,
-          message: result.message,
-        };
+        this.user = null;
+        localStorage.removeItem(storageId);
+        return result;
       } else {
         return "User is not authorized.";
       }

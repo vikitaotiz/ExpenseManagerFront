@@ -8,7 +8,7 @@
           dense
           flat
           icon="arrow_back"
-          label="Back "
+          label="Back"
         />
         <q-space />
         <div>
@@ -32,6 +32,16 @@
         </q-input>
       </q-card-actions>
     </q-card>
+    <small v-if="category?.data?.products?.length < 1">
+      <q-btn
+        flat
+        class="q-ma-sm"
+        size="sm"
+        label="Add Products To This Category"
+        color="primary"
+        :to="`/category_products/${category?.data?.slug}`"
+      />
+    </small>
     <div v-if="isLoading">Loading...</div>
     <div v-if="isError">There was an error...</div>
 
@@ -81,6 +91,16 @@
     />
   </div>
 </template>
+
+<script>
+import { useUserStore as store } from "src/stores/user-store";
+export default {
+  preFetch({ currentRoute, previousRoute, redirect }) {
+    const userStore = store();
+    !userStore?.user && redirect({ path: "/" });
+  },
+};
+</script>
 
 <script setup>
 import { reactive, ref } from "vue";

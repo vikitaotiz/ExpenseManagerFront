@@ -5,40 +5,8 @@
       <q-btn to="/register" unelevated color="primary" label="Register" icon="edit" />
     </q-btn-group>
     <div class="box">
-      <q-select
-        dense
-        outlined
-        v-model="country"
-        use-input
-        input-debounce="0"
-        label="Select Country"
-        :options="options"
-        option-label="name"
-        @filter="filterFn"
-        class="q-mb-md"
-        ><template v-slot:no-option>
-          <q-item>
-            <q-item-section class="text-grey"> No results </q-item-section>
-          </q-item>
-        </template>
-      </q-select>
-      <div class="q-mb-md">
-        <code style="color: grey">e.g 0XXXXXXXXX - (start with zero)</code>
-        <q-input
-          dense
-          type="tel"
-          outlined
-          v-model="phoneNumber"
-          label="Enter your phone..."
-        >
-          <template v-slot:prepend>
-            <code style="color: #029e43; font-size: 15px; padding-top: 11px">{{
-              country?.dial_code
-            }}</code>
-          </template>
-        </q-input>
-        <small style="color: red"> {{ phoneError }}</small>
-      </div>
+      <PhoneInput :user="user" />
+
       <q-input
         dense
         outlined
@@ -64,12 +32,14 @@
         class="q-mb-md"
       />
 
+      <small style="color: red">{{ errorMessage }}</small>
+
       <div style="text-align: center">
         <q-spinner-grid v-if="loading" size="40px" color="primary" label="Loading..." />
       </div>
 
       <q-btn
-        v-if="!loading && country"
+        v-if="!loading && user.country"
         @click="register"
         class="full-width"
         color="primary"
@@ -82,73 +52,91 @@
 
 <script setup>
 import { reactive, ref } from "vue";
-import { useUserStore } from "src/stores/user-store.js";
+import { useQuasar } from "quasar";
 import { useRouter } from "vue-router";
-import { countries } from "src/utilities/countries";
+import { useMutation } from "vue-query";
 
+import { useUserStore } from "src/stores/user-store.js";
 import {
   validatePhone,
-  filterCountries,
   combineCodeNumber,
+  notifyUser,
 } from "src/utilities/commonMethods";
-import { useQuasar } from "quasar";
+import PhoneInput from "src/components/PhoneInput.vue";
+import { storageId } from "src/utilities/constants";
 
 const router = useRouter();
 const $q = useQuasar();
 
-const country_data = countries();
-const options = ref(country_data);
 const country = ref(null);
 const phoneError = ref("");
 const loading = ref(false);
-
+const errorMessage = ref("");
 const user = reactive({
-  name: "",
-  email: "",
+  phoneNumber: "0708999555",
   password: "",
+  country: null,
+  phoneError: "",
+  name: "otis",
+  email: "",
 });
-const phoneNumber = ref("");
 
 const userStore = useUserStore();
 
 const register = async () => {
   let phone = null;
 
-  if (!validatePhone(phoneNumber.value)) phoneError.value = "The number is invalid.";
-  else if (country.value && phoneNumber.value && user.name && user.password) {
-    phoneError.value = "";
-    loading.value = true;
+  if (!validatePhone(user.phoneNumber)) user.phoneError = "The number is invalid.";
+  else if (user.country && user.phoneNumber && user.name && user.password) {
+    user.phoneError = "";
 
-    phone = combineCodeNumber(phoneNumber, country);
+    phone = combineCodeNumber(user.phoneNumber, user.country.dial_code);
 
     let data = {
-      phone: phone,
+      phone: phone.replace(/\s/g, ""),
       name: user.name,
-      country: country.value.name,
+      country: user.country.name,
       email: user.email,
       password: user.password,
     };
 
-    const res = await userStore.loginRegister(data, "register");
-
-    if (res.status === 201) {
-      router.push("/dashboard");
-      loading.value = false;
-      $q.notify({
-        message: "Registration successfully.",
-        color: "orange",
-        position: "top-right",
-      });
-    } else {
-      loading.value = false;
-      alert("There was an error!");
-    }
+    registerFn(data);
+    loading.value = true;
   } else {
     alert("Country, Phone, Name and Password are required!");
   }
 };
 
-const filterFn = (val, update) => filterCountries(val, update, options, country_data);
+const { mutate: registerFn } = useMutation(
+  (data) => userStore.loginRegister(data, "register"),
+  {
+    onSuccess: (data) => {
+      if (data.status === "success") {
+        const result = {
+          token: data.token,
+          user: data.user,
+        };
+        userStore.setUser(result);
+        localStorage.setItem(storageId, JSON.stringify(result));
+        loading.value = false;
+        notifyUser($q, data.message, "top-right", "orange");
+        router.push("/dashboard");
+      }
+
+      if (data.status === "error") {
+        loading.value = false;
+        errorMessage.value = data.message;
+        notifyUser($q, data.message, "top-right", "red");
+      }
+    },
+
+    onError: (error) => {
+      loading.value = false;
+      errorMessage.value = error;
+      notifyUser($q, `There was an error: ${error}`, "top-right", "red");
+    },
+  }
+);
 </script>
 
 <style>

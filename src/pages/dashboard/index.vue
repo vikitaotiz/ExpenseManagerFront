@@ -32,8 +32,14 @@ import { useUserStore } from "src/stores/user-store";
 
 const router = useRouter();
 const userStore = useUserStore();
+</script>
 
-// onMounted(() => {
-//   if (userStore?.user?.user?.role !== "Admin") router.push("/costings");
-// });
+<script>
+import { useUserStore as store } from "src/stores/user-store";
+export default {
+  preFetch({ currentRoute, previousRoute, redirect }) {
+    const userStore = store();
+    !userStore?.user && redirect({ path: "/" });
+  },
+};
 </script>
