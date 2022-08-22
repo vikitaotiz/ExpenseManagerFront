@@ -59,7 +59,7 @@ const filter = ref("");
 import { useUserStore as store } from "src/stores/user-store";
 export default {
   preFetch({ currentRoute, previousRoute, redirect }) {
-    const store = useUserStore();
+    const store = store();
     !store?.user && redirect({ path: "/" });
   },
 };

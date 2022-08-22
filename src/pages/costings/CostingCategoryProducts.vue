@@ -62,7 +62,7 @@
           style="text-decoration: none; color: #029e43"
           @click="openEntryDialog(props.row)"
         >
-          <q-card style="cursor: pointer; border-radius: 10px">
+          <q-card style="cursor: pointer; border-radius: 10px" class="product">
             <q-list separator dense>
               <q-item>
                 <q-item-section class="text-center">
@@ -88,6 +88,10 @@
       :entry="entry"
       :parts="parts"
       :errorMessage="errorMessage"
+      :todayOpeningStockLoading="todayOpeningStockLoading"
+      :todayOpeningStockError="todayOpeningStockError"
+      :lockOpeningStock="lockOpeningStock"
+      @closeDialog="closeDialog"
     />
   </div>
 </template>
@@ -108,7 +112,7 @@ import { useQuery, useMutation } from "vue-query";
 import { useQuasar } from "quasar";
 import { useRoute, useRouter } from "vue-router";
 
-import { getSingle } from "src/utilities/fetchWrapper";
+import { getSingle, post } from "src/utilities/fetchWrapper";
 import { useEntryStore } from "src/stores/entry-store";
 import { createNewEntry, fetchData, notifyUser } from "src/utilities/commonMethods";
 import { useUserStore } from "src/stores/user-store";
@@ -121,6 +125,7 @@ const filter = ref("");
 const errorMessage = ref("");
 const loading = ref(false);
 const entryDialog = ref(false);
+let lockOpeningStock = ref(false);
 const product = ref("");
 const $q = useQuasar();
 const entryStore = useEntryStore();
@@ -137,8 +142,9 @@ const { data: parts } = useQuery("parts", () =>
   fetchData("parts", userStore?.user?.token)
 );
 
-const entry = reactive({
+let entry = reactive({
   unit_price: 0,
+  selling_price: 0,
   purchases: 0,
   opening_stock: 0,
   closing_stock: 0,
@@ -154,22 +160,38 @@ const entry = reactive({
 const openEntryDialog = (data) => {
   product.value = data;
   entryDialog.value = true;
+  todayOpeningStock(data.id);
 };
+
+const {
+  mutate: todayOpeningStock,
+  isLoading: todayOpeningStockLoading,
+  isError: todayOpeningStockError,
+} = useMutation((id) => post("product_closing_stock", { product_id: id }), {
+  onSuccess: (data) => {
+    if (data.status === "success") {
+      lockOpeningStock.value = true;
+      entry.opening_stock = data.today_opening_stock;
+    }
+    if (data.status === "error") entry.opening_stock = 0;
+  },
+});
 
 const submitEntry = async () => {
   const data = {
     product_id: product.value.id,
     units: product.value.unit,
     parts: entry.part.name,
-    unit_price: entry.unit_price,
-    purchases: entry.purchases,
+    unit_price: parseFloat(entry.unit_price),
+    selling_price: parseFloat(entry.selling_price),
+    purchases: parseInt(entry.purchases),
     purchases_cost: entry.unit_price * entry.purchases,
-    opening_stock: entry.opening_stock,
-    closing_stock: entry.closing_stock,
+    opening_stock: parseInt(entry.opening_stock),
+    closing_stock: parseInt(entry.closing_stock),
     closing_stock_cost: entry.unit_price * entry.closing_stock,
     usage: entry.usage,
     usage_cost: entry.unit_price * entry.usage,
-    system_usage: entry.system_usage,
+    system_usage: parseInt(entry.system_usage),
     stock_shortage: 0,
     stock_shortage_cost: 0,
   };
@@ -212,4 +234,27 @@ const { mutate: addEntry } = useMutation(
     },
   }
 );
+
+const closeDialog = () => {
+  lockOpeningStock.value = false;
+  errorMessage.value = "";
+  entry.unit_price = 0;
+  entry.selling_price = 0;
+  entry.purchases = 0;
+  entry.opening_stock = 0;
+  entry.closing_stock = 0;
+  entry.part = "";
+  entry.closing_stock_cost = 0;
+  entry.usage = 0;
+  entry.usage_cost = 0;
+  entry.system_usage = 0;
+  entry.stock_shortage = 0;
+  entry.stock_shortage_cost = 0;
+};
 </script>
+
+<style scoped>
+.product:hover {
+  color: orangered;
+}
+</style>

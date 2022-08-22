@@ -1,5 +1,3 @@
-// import CategoryList from "pages/categories/index.js"
-
 import Home from "pages/IndexPage.vue";
 import Register from "pages/Register.vue";
 import Dashboard from "pages/dashboard/index.vue";
@@ -17,6 +15,7 @@ import Settings from "pages/settings/Index.vue";
 import Roles from "pages/roles/Index.vue";
 import Users from "pages/users/Index.vue";
 import Companies from "pages/companies/Index.vue";
+import OptionalInput from "pages/companies/OptionalInput.vue";
 import Reports from "pages/reports/Index.vue";
 import EntriesReports from "pages/reports/EntriesReports.vue";
 import Parts from "pages/parts/Index.vue";
@@ -114,6 +113,10 @@ const routes = [
       {
         path: "/spilages",
         component: Spilages,
+      },
+      {
+        path: "optional_input",
+        component: OptionalInput,
       },
     ],
   },
