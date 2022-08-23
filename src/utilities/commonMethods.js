@@ -9,12 +9,16 @@ const getHeaders = () => {
 
 export const fetchData = async (exp_url) => {
   const res = await fetch(`${baseUrl}/${exp_url}`, { headers: getHeaders() });
-  const results = await res.json();
-  return results.data;
+  if (res.status === 200) {
+    const results = await res.json();
+    return results.data;
+  } else {
+    localStorage.removeItem(storageId);
+    location.reload();
+  }
 };
 
 export const createNewEntry = async (data, user) => {
-  // !auth?.token ? (headers.Authorization = `Bearer ${token}`) : headers;
   data.user_id = user.id;
   data.company_id = user.company_id;
 
@@ -29,8 +33,6 @@ export const createNewEntry = async (data, user) => {
 };
 
 export const deleteData = async (id, exp_url) => {
-  // !auth?.token ? (headers.Authorization = `Bearer ${token}`) : headers;
-
   const res = await fetch(`${baseUrl}/${exp_url}/${id}`, {
     method: "DELETE",
     headers: getHeaders(),
