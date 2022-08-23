@@ -2,12 +2,11 @@
   <div class="q-pa-md">
     <div v-if="isLoading">Loading...</div>
     <div v-else-if="isError">An error has occurred</div>
-
     <q-table
       v-else
       grid
       title="Companies/Businesses with entries"
-      :rows="data"
+      :rows="companies"
       row-key="title"
       :filter="filter"
       hide-header
@@ -23,7 +22,7 @@
           class="q-mr-md"
         />
         <q-input
-          v-if="data?.length > 1"
+          v-if="companies.length > 1"
           borderless
           dense
           outlined
@@ -80,16 +79,18 @@ import { ref } from "vue";
 import { useQuery } from "vue-query";
 
 import { fetchData } from "src/utilities/commonMethods";
-import { useUserStore } from "src/stores/user-store";
 import { util_pagination } from "src/utilities/util_pagination";
-
-const userStore = useUserStore();
 
 const pagination = ref(util_pagination(10));
 const filter = ref("");
+const companies = ref([]);
 
-const { data, isLoading, isError } = useQuery("company_entries", () =>
-  fetchData("company_entries", userStore?.user?.token)
+const { data, isLoading, isError } = useQuery(
+  "company_entries",
+  () => fetchData("company_entries"),
+  {
+    onSuccess: (data) => (companies.value = Object.values(data)),
+  }
 );
 </script>
 

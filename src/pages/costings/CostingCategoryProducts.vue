@@ -112,10 +112,10 @@ import { useQuery, useMutation } from "vue-query";
 import { useQuasar } from "quasar";
 import { useRoute, useRouter } from "vue-router";
 
+import { useUserStore } from "src/stores/user-store";
 import { getSingle, post } from "src/utilities/fetchWrapper";
 import { useEntryStore } from "src/stores/entry-store";
 import { createNewEntry, fetchData, notifyUser } from "src/utilities/commonMethods";
-import { useUserStore } from "src/stores/user-store";
 import { util_pagination } from "src/utilities/util_pagination";
 import NewEntryDialog from "src/components/EntryCostings/NewEntryDialog.vue";
 
@@ -129,7 +129,6 @@ let lockOpeningStock = ref(false);
 const product = ref("");
 const $q = useQuasar();
 const entryStore = useEntryStore();
-const userStore = useUserStore();
 
 const pagination = ref(util_pagination(10));
 
@@ -138,9 +137,7 @@ const { data: category, isLoading, isError } = useQuery(
   () => getSingle("categories", route.params.slug)
 );
 
-const { data: parts } = useQuery("parts", () =>
-  fetchData("parts", userStore?.user?.token)
-);
+const { data: parts } = useQuery("parts", () => fetchData("parts"));
 
 let entry = reactive({
   unit_price: 0,
@@ -200,8 +197,10 @@ const submitEntry = async () => {
   loading.value = true;
 };
 
+const userStore = useUserStore();
+
 const { mutate: addEntry } = useMutation(
-  (data) => createNewEntry(data, userStore?.user?.token),
+  (data) => createNewEntry(data, userStore.user.user),
   {
     onSuccess: (data) => {
       if (data.status === "success") {

@@ -72,17 +72,15 @@ export default {
 import { ref } from "vue";
 import { useQuery } from "vue-query";
 
-import { useUserStore } from "src/stores/user-store";
 import { fetchData } from "src/utilities/commonMethods";
 import { util_pagination } from "src/utilities/util_pagination";
 
-const userStore = useUserStore();
 const filter = ref("");
 const loading = ref(false);
 
 const pagination = ref(util_pagination(10));
 
 const { data: categories, isLoading, isError } = useQuery("categories", () =>
-  fetchData("categories", userStore?.user?.token)
+  fetchData("categories")
 );
 </script>

@@ -122,20 +122,16 @@ import { useQuery, useMutation, useQueryClient } from "vue-query";
 import { company_store_columns } from "src/utilities/columns/CompanyStoreColumns";
 import { fetchData, deleteData, notifyUser } from "src/utilities/commonMethods";
 import { post } from "src/utilities/fetchWrapper";
-import { useUserStore } from "src/stores/user-store.js";
 import { util_pagination } from "src/utilities/util_pagination";
 
-const userStore = useUserStore();
 const queryClient = useQueryClient();
 const $q = useQuasar();
 
 const { data: stores, isLoading, isError, error } = useQuery("stores", () =>
-  fetchData("stores", userStore.user?.token)
+  fetchData("stores")
 );
 
-const { data: companies } = useQuery("companies", () =>
-  fetchData("companies", userStore.user?.token)
-);
+const { data: companies } = useQuery("companies", () => fetchData("companies"));
 
 const pagination = ref(util_pagination(15));
 

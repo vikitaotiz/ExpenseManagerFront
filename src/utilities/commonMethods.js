@@ -1,24 +1,26 @@
+import { useUserStore } from "src/stores/user-store";
 import { baseUrl, headers, storageId } from "src/utilities/constants";
 
-const auth = JSON.parse(localStorage.getItem(storageId));
-headers.Authorization = `Bearer ${auth?.token}`;
+const getHeaders = () => {
+  const userStore = useUserStore();
+  headers.Authorization = `Bearer ${userStore?.user?.token}`;
+  return headers;
+};
 
-export const fetchData = async (exp_url, token) => {
-  !auth?.token ? (headers.Authorization = `Bearer ${token}`) : headers;
-
-  const res = await fetch(`${baseUrl}/${exp_url}`, { headers });
+export const fetchData = async (exp_url) => {
+  const res = await fetch(`${baseUrl}/${exp_url}`, { headers: getHeaders() });
   const results = await res.json();
   return results.data;
 };
 
-export const createNewEntry = async (data, token) => {
-  !auth?.token ? (headers.Authorization = `Bearer ${token}`) : headers;
-  data.user_id = auth?.user?.id;
-  data.company_id = auth?.user?.company_id;
+export const createNewEntry = async (data, user) => {
+  // !auth?.token ? (headers.Authorization = `Bearer ${token}`) : headers;
+  data.user_id = user.id;
+  data.company_id = user.company_id;
 
   const res = await fetch(`${baseUrl}/entries`, {
     method: "POST",
-    headers,
+    headers: getHeaders(),
     body: JSON.stringify(data),
   });
 
@@ -26,12 +28,12 @@ export const createNewEntry = async (data, token) => {
   return result;
 };
 
-export const deleteData = async (id, exp_url, token) => {
-  !auth?.token ? (headers.Authorization = `Bearer ${token}`) : headers;
+export const deleteData = async (id, exp_url) => {
+  // !auth?.token ? (headers.Authorization = `Bearer ${token}`) : headers;
 
   const res = await fetch(`${baseUrl}/${exp_url}/${id}`, {
     method: "DELETE",
-    headers,
+    headers: getHeaders(),
   });
 
   const result = await res.json();

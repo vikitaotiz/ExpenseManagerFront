@@ -88,11 +88,9 @@ import { useQuery, useMutation, useQueryClient } from "vue-query";
 
 import { fetchData, notifyUser } from "src/utilities/commonMethods";
 import { post } from "src/utilities/fetchWrapper";
-import { useUserStore } from "src/stores/user-store";
 import { util_pagination } from "src/utilities/util_pagination";
 import NewCategoryDialog from "src/components/Categories/NewCategoryDialog.vue";
 
-const userStore = useUserStore();
 const $q = useQuasar();
 const queryClient = useQueryClient();
 
@@ -108,7 +106,7 @@ const new_category_dialog = ref(false);
 const loading = ref(false);
 
 const { data: categories, isLoading, isError } = useQuery("categories", () =>
-  fetchData("categories", userStore?.user?.token)
+  fetchData("categories")
 );
 
 const openCategoryDialog = () => (new_category_dialog.value = true);

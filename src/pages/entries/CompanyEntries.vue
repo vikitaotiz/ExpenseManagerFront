@@ -1,10 +1,54 @@
 <template>
   <div class="q-pa-md">
+    <q-card class="bg-primary text-white q-mb-md">
+      <q-card-actions>
+        <q-btn @click="$router.back()" icon="arrow_back" dense flat label="Back" />
+        <q-space />
+        <b>
+          {{ data?.company_name?.toUpperCase() }} :
+          <small
+            ><code>(Entries - {{ data?.data?.length }})</code></small
+          >
+        </b>
+        <q-space />
+      </q-card-actions>
+      <q-separator color="orange" />
+      <q-list bordered separator dense>
+        <q-item>
+          <q-item-section>Total Production Cost</q-item-section>
+          <q-item-section avatar>
+            {{ computedTotalProductionCost }}
+          </q-item-section>
+        </q-item>
+        <q-item>
+          <q-item-section>Total Usage/Sales cost</q-item-section>
+          <q-item-section avatar>
+            {{ computedTotalUsageCost }}
+          </q-item-section>
+        </q-item>
+        <q-item>
+          <q-item-section>Net profit</q-item-section>
+          <q-item-section avatar>
+            {{ computedProfit }}
+          </q-item-section>
+        </q-item>
+        <q-item>
+          <q-item-section>Percentage profit</q-item-section>
+          <q-item-section avatar>
+            {{
+              computedProfit / computedTotalProductionCost
+                ? ((computedProfit / computedTotalProductionCost) * 100).toFixed(2)
+                : 0
+            }}
+            %
+          </q-item-section>
+        </q-item>
+      </q-list>
+    </q-card>
     <div v-if="isLoading">Loading...</div>
     <div v-else-if="isError">An error has occurred: {{ error }}</div>
     <q-table
       v-else-if="data"
-      :title="`${data?.company_name?.toUpperCase()} entries`"
       :rows="data?.data"
       :columns="today_entry_columns"
       :grid="$q.screen.xs"
@@ -17,6 +61,7 @@
       <template v-slot:top-right>
         <q-spinner-grid v-if="loading" class="q-mr-lg" size="20px" />
         <q-input
+          v-if="data?.data.length > 1"
           borderless
           dense
           outlined
@@ -63,7 +108,7 @@ export default {
 </script>
 
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useMutation, useQuery, useQueryClient } from "vue-query";
 import { useQuasar } from "quasar";
 
@@ -80,9 +125,14 @@ const route = useRoute();
 const queryClient = useQueryClient();
 const $q = useQuasar();
 
+const company_data = ref([]);
+
 const { data, isLoading, isError, error } = useQuery(
   ["today_entries", route.params.slug],
-  () => getSingle("today_entries", route.params.slug)
+  () => getSingle("today_entries", route.params.slug),
+  {
+    onSuccess: (data) => (company_data.value = data.data),
+  }
 );
 
 const pagination = ref(util_pagination(15));
@@ -109,5 +159,31 @@ const { mutate: removeEntry } = useMutation((id) => deleteData(id, "entries"), {
     notifyUser($q, `There was an error : ${error}`, "top-right", "red");
     loading.value = false;
   },
+});
+
+const computedTotalProductionCost = computed(() => {
+  return company_data.value.reduce(
+    (a, b) => a + Number(b.unit_price) * Number(b.usage),
+    0
+  );
+});
+
+const computedTotalUsageCost = computed(() => {
+  return company_data.value.reduce(
+    (a, b) => a + Number(b.selling_price) * Number(b.usage),
+    0
+  );
+});
+
+const computedProfit = computed(() => {
+  const buying_price = company_data.value.reduce(
+    (a, b) => a + Number(b.unit_price) * Number(b.usage),
+    0
+  );
+  const selling_price = company_data.value.reduce(
+    (a, b) => a + Number(b.selling_price) * Number(b.usage),
+    0
+  );
+  return selling_price - buying_price;
 });
 </script>

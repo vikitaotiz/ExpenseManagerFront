@@ -24,11 +24,6 @@ export default {
   components: {
     Doughnut,
   },
-  props: {
-    token: {
-      type: String,
-    },
-  },
 
   data() {
     return {
@@ -53,7 +48,7 @@ export default {
   },
   methods: {
     async fetchCategories() {
-      const res = await fetchData("categories", this.token);
+      const res = await fetchData("categories");
       let arr = [];
       let colors = [];
       if (res && res.length > 0) {

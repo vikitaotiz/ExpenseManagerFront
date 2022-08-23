@@ -2,7 +2,7 @@
   <div class="q-pa-md">
     <div class="row">
       <div class="col-xs-12 col-sm-4 col-md-4 q-pa-sm">
-        <q-card class="q-pa-sm"><DoughnutChart :token="userStore?.user?.token" /></q-card>
+        <q-card class="q-pa-sm"><DoughnutChart /></q-card>
       </div>
       <div class="col-xs-12 col-sm-4 col-md-4 q-pa-sm">
         <q-card class="q-pa-sm bg-orange">

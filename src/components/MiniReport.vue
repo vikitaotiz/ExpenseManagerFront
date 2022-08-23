@@ -27,43 +27,51 @@
         <div class="col-4 q-pa-sm">
           <q-card flat class="q-pa-sm">
             <div class="text-center">
-              <b
-                >{{ company_data?.name?.toUpperCase() }} :
+              <b v-if="company_data?.entries?.length > 0">
+                <router-link :to="`/company_entries/${company_data?.slug}`">{{
+                  company_data?.name?.toUpperCase()
+                }}</router-link>
+                :
+                <small
+                  ><code>(Entries - {{ company_data?.entries?.length }})</code></small
+                ></b
+              >
+              <b v-else
+                >{{ company_data?.name?.toUpperCase() }}:
                 <small
                   ><code>(Entries - {{ company_data?.entries?.length }})</code></small
                 ></b
               >
             </div>
             <q-separator color="primary" />
-            <q-list bordered separator dense>
+            <q-list v-if="company_data?.entries?.length > 0" bordered separator dense>
               <q-item>
-                <q-item-section>Total Purchases' cost</q-item-section>
+                <q-item-section>Total Production Cost</q-item-section>
                 <q-item-section avatar>
-                  {{
-                    company_data?.entries?.reduce(
-                      (a, b) => a + Number(b.purchases_cost),
-                      0
-                    )
-                  }}
+                  {{ computedTotalProductionCost }}
                 </q-item-section>
               </q-item>
               <q-item>
-                <q-item-section>Total closing stock cost</q-item-section>
+                <q-item-section>Total Usage/Sales cost</q-item-section>
                 <q-item-section avatar>
-                  {{
-                    company_data?.entries?.reduce(
-                      (a, b) => a + Number(b.closing_stock_cost),
-                      0
-                    )
-                  }}
+                  {{ computedTotalUsageCost }}
                 </q-item-section>
               </q-item>
               <q-item>
-                <q-item-section>Total usage cost</q-item-section>
+                <q-item-section>Net profit</q-item-section>
+                <q-item-section avatar>
+                  {{ computedProfit }}
+                </q-item-section>
+              </q-item>
+              <q-item>
+                <q-item-section>Percentage profit</q-item-section>
                 <q-item-section avatar>
                   {{
-                    company_data?.entries?.reduce((a, b) => a + Number(b.usage_cost), 0)
+                    computedProfit / computedTotalProductionCost
+                      ? ((computedProfit / computedTotalProductionCost) * 100).toFixed(2)
+                      : 0
                   }}
+                  %
                 </q-item-section>
               </q-item>
             </q-list>
@@ -75,20 +83,43 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { useQuery } from "vue-query";
 import { fetchData } from "src/utilities/commonMethods";
-import { useUserStore } from "src/stores/user-store";
 
-const userStore = useUserStore();
 const company_data = ref("");
-let totalPurchasesCost = ref(0);
-let totalClosingStockCost = ref(0);
-let totalUsageCost = ref(0);
 
 const {
   data: companies,
   isLoading: isLoadingCompany,
   isError: isErrorCompany,
-} = useQuery("companies", () => fetchData("companies", userStore?.user?.token));
+} = useQuery("companies", () => fetchData("companies"));
+
+const computedTotalProductionCost = computed(() => {
+  return company_data.value?.entries?.reduce(
+    (a, b) => a + Number(b.unit_price) * Number(b.usage),
+    0
+  );
+});
+
+const computedTotalUsageCost = computed(() => {
+  return company_data.value?.entries?.reduce(
+    (a, b) => a + Number(b.selling_price) * Number(b.usage),
+    0
+  );
+});
+
+const computedProfit = computed(() => {
+  const buying_price = company_data.value?.entries?.reduce(
+    (a, b) => a + Number(b.unit_price) * Number(b.usage),
+    0
+  );
+
+  const selling_price = company_data.value?.entries?.reduce(
+    (a, b) => a + Number(b.selling_price) * Number(b.usage),
+    0
+  );
+
+  return selling_price - buying_price;
+});
 </script>

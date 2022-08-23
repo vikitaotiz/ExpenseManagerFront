@@ -39,15 +39,12 @@
 import { ref, onMounted } from "vue";
 import { useQuery } from "vue-query";
 
-import { useUserStore } from "src/stores/user-store.js";
 import { fetchData } from "src/utilities/commonMethods";
 import { company_columns } from "src/utilities/columns/company_columns";
 import { util_pagination } from "src/utilities/util_pagination";
 
-const userStore = useUserStore();
-
 const { data, isLoading, isError, error } = useQuery("companies", () =>
-  fetchData("companies", userStore.user?.token)
+  fetchData("companies")
 );
 
 const pagination = ref(util_pagination(15));

@@ -107,7 +107,6 @@ import { useQuery, useMutation, useQueryClient } from "vue-query";
 import { getSingle, post } from "src/utilities/fetchWrapper.js";
 import { fetchData, deleteData, notifyUser } from "src/utilities/commonMethods";
 import { storageId } from "src/utilities/constants";
-import { useUserStore } from "src/stores/user-store";
 import { category_product_columns } from "src/utilities/columns/category_product_columns";
 import { util_pagination } from "src/utilities/util_pagination";
 import NewCategoryProductDialog from "src/components/Categories/NewCategoryProductDialog.vue";
@@ -117,15 +116,12 @@ const filter = ref("");
 const router = useRouter();
 const $q = useQuasar();
 const queryClient = useQueryClient();
-const userStore = useUserStore();
 
 const new_product_dialog = ref(false);
 const loading = ref(false);
 const errorMessage = ref("");
 const product = reactive({
   name: "",
-  buying_price: 0,
-  selling_price: 0,
   description: "",
   unit_id: "",
   store_id: "",
@@ -152,18 +148,14 @@ const removeCategory = () => {
   }
 };
 
-const { mutate: deleteCategory } = useMutation(
-  (slug) => deleteData(slug, "categories", userStore?.user?.token),
-  {
-    onSuccess: (data) => {
-      router.push("/categories");
-      notifyUser($q, data.message, "top-right", "orange");
-    },
+const { mutate: deleteCategory } = useMutation((slug) => deleteData(slug, "categories"), {
+  onSuccess: (data) => {
+    router.push("/categories");
+    notifyUser($q, data.message, "top-right", "orange");
+  },
 
-    onError: (error) =>
-      notifyUser($q, `There was an error: ${error}`, "top-right", "red"),
-  }
-);
+  onError: (error) => notifyUser($q, `There was an error: ${error}`, "top-right", "red"),
+});
 
 const addProduct = () => {
   let auth = JSON.parse(localStorage.getItem(storageId));

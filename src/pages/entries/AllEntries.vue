@@ -48,18 +48,16 @@ export default {
 import { ref } from "vue";
 import { useQuery } from "vue-query";
 
-import { useUserStore } from "src/stores/user-store.js";
 import { useRouter, useRoute } from "vue-router";
 import { company_entry_columns } from "src/utilities/columns/company_entry_columns";
 import { util_pagination } from "src/utilities/util_pagination";
 import { fetchData } from "src/utilities/commonMethods";
 
-const userStore = useUserStore();
 const router = useRouter();
 const route = useRoute();
 
 const { data, isLoading, isError, error } = useQuery("entries", () =>
-  fetchData("entries", userStore?.user?.token)
+  fetchData("entries")
 );
 
 const pagination = ref(util_pagination(15));

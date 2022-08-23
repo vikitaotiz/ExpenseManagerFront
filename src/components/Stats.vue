@@ -48,10 +48,7 @@
 <script setup>
 import { reactive } from "vue";
 import { useQuery } from "vue-query";
-import { useUserStore } from "src/stores/user-store";
 import { fetchData } from "src/utilities/commonMethods";
-
-const userStore = useUserStore();
 
 const stats = reactive({
   all_entries: 0,
@@ -62,20 +59,16 @@ const stats = reactive({
   users: 0,
 });
 
-const { isLoading, isError } = useQuery(
-  "entries",
-  () => fetchData("stats", userStore?.user?.token),
-  {
-    onSuccess: (data) => {
-      stats.all_entries = data.all_entries;
-      stats.today_entries = data.today_entries;
-      stats.categories = data.categories;
-      stats.products = data.products;
-      stats.companies = data.companies;
-      stats.users = data.users;
-    },
-  }
-);
+const { isLoading, isError } = useQuery("entries", () => fetchData("stats"), {
+  onSuccess: (data) => {
+    stats.all_entries = data.all_entries;
+    stats.today_entries = data.today_entries;
+    stats.categories = data.categories;
+    stats.products = data.products;
+    stats.companies = data.companies;
+    stats.users = data.users;
+  },
+});
 </script>
 
 <style>
