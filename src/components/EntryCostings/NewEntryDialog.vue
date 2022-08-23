@@ -166,7 +166,7 @@ let { entry, product, lockOpeningStock } = defineProps([
 
 const usage = computed(() => {
   let res = 0;
-  res = entry.opening_stock - entry.closing_stock;
+  res = Number(entry.opening_stock) + Number(entry.purchases) - entry.closing_stock;
   return res ? res : 0;
 });
 

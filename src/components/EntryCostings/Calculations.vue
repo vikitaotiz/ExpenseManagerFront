@@ -56,16 +56,24 @@ import { computed } from "vue";
 const { entry } = defineProps(["entry"]);
 
 const usage = computed(() => {
-  entry.usage = parseInt(entry.opening_stock - entry.closing_stock)
-    ? parseInt(entry.opening_stock - entry.closing_stock)
+  entry.usage = parseInt(
+    Number(entry.opening_stock) + Number(entry.purchases) - entry.closing_stock
+  )
+    ? parseInt(
+        Number(entry.opening_stock) + Number(entry.purchases) - entry.closing_stock
+      )
     : parseInt(0);
 
   return entry.usage;
 });
 
 const percentage_profit = computed(() => {
-  let num = parseInt(entry.opening_stock - entry.closing_stock)
-    ? parseInt(entry.opening_stock - entry.closing_stock)
+  let num = parseInt(
+    Number(entry.opening_stock) + Number(entry.purchases) - entry.closing_stock
+  )
+    ? parseInt(
+        Number(entry.opening_stock) + Number(entry.purchases) - entry.closing_stock
+      )
     : 0;
 
   let profit = 0;
@@ -77,8 +85,12 @@ const percentage_profit = computed(() => {
 });
 
 const usage_difference = computed(() => {
-  let num = parseInt(entry.opening_stock - entry.closing_stock)
-    ? parseInt(entry.opening_stock - entry.closing_stock)
+  let num = parseInt(
+    Number(entry.opening_stock) + Number(entry.purchases) - entry.closing_stock
+  )
+    ? parseInt(
+        Number(entry.opening_stock) + Number(entry.purchases) - entry.closing_stock
+      )
     : 0;
   return num - entry.system_usage;
 });
