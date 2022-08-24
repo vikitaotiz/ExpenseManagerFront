@@ -42,7 +42,6 @@
             <q-icon name="search" />
           </template>
         </q-input>
-        <q-btn round dense color="primary" size="small" icon="add" />
       </template>
     </q-table>
   </div>

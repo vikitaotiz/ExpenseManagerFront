@@ -43,28 +43,6 @@
             />
           </div>
         </div>
-        <div class="row">
-          <div class="col">
-            <q-input
-              dense
-              outlined
-              v-model="product.buying_price"
-              label="Buying  Price"
-              type="number"
-              class="q-ma-sm"
-            />
-          </div>
-          <div class="col">
-            <q-input
-              dense
-              outlined
-              v-model="product.selling_price"
-              label="Selling  Price"
-              type="number"
-              class="q-ma-sm"
-            />
-          </div>
-        </div>
 
         <q-input
           v-model="product.description"

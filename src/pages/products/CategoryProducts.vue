@@ -163,8 +163,6 @@ const addProduct = () => {
     name: product.name,
     description: product.description,
     category_id: product.category_id,
-    buying_price: product.buying_price,
-    selling_price: product.selling_price,
     unit_id: product.unit_id?.id,
     store_id: product.store_id?.id,
     company_id: auth.user?.company_id,
