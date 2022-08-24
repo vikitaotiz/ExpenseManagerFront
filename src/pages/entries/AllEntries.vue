@@ -1,55 +1,101 @@
 <template>
   <div class="q-pa-md">
-    <q-card class="bg-blue text-white q-mb-md">
-      <q-card-actions>
-        <q-btn @click="$router.back()" icon="arrow_back" dense flat label="Back" />
-        <q-space />
-        <b>
-          <small
-            ><code>(All Entries - {{ entries.length }})</code></small
-          >
-        </b>
-        <q-space />
-      </q-card-actions>
-      <q-separator color="orange" />
-      <q-list bordered separator dense>
-        <q-item>
-          <q-item-section>Total Production Cost</q-item-section>
-          <q-item-section avatar>
-            {{ computedTotalProductionCost }}
-          </q-item-section>
-        </q-item>
-        <q-item>
-          <q-item-section>Total Usage/Sales cost</q-item-section>
-          <q-item-section avatar>
-            {{ computedTotalUsageCost }}
-          </q-item-section>
-        </q-item>
-        <q-item>
-          <q-item-section>Net profit</q-item-section>
-          <q-item-section avatar>
-            {{ computedProfit }}
-          </q-item-section>
-        </q-item>
-        <q-item>
-          <q-item-section>Average Percentage Profit</q-item-section>
-          <q-item-section avatar>
-            {{
-              computedProfit / computedTotalProductionCost
-                ? ((computedProfit / computedTotalProductionCost) * 100).toFixed(2)
-                : 0
-            }}
-            %
-          </q-item-section>
-        </q-item>
-      </q-list>
-    </q-card>
+    <div class="row">
+      <div class="col-xs-12 col-sm-7 col-md-7 q-pa-sm">
+        <q-card class="bg-blue text-white q-mb-md" flat>
+          <q-card-actions>
+            <q-btn @click="$router.back()" icon="arrow_back" dense flat label="Back" />
+            <q-space />
+            <b
+              ><code>(All Entries - {{ entries.length }})</code>
+            </b>
+            <q-space />
+          </q-card-actions>
+          <q-separator color="yellow" />
+          <q-list bordered separator dense>
+            <q-item>
+              <q-item-section>Total Production Cost</q-item-section>
+              <q-item-section avatar>
+                {{ computedTotalProductionCost }}
+              </q-item-section>
+            </q-item>
+            <q-item>
+              <q-item-section>Total Usage/Sales cost</q-item-section>
+              <q-item-section avatar>
+                {{ computedTotalUsageCost }}
+              </q-item-section>
+            </q-item>
+            <q-item>
+              <q-item-section>Net profit</q-item-section>
+              <q-item-section avatar>
+                {{ computedProfit }}
+              </q-item-section>
+            </q-item>
+            <q-item>
+              <q-item-section>Average Percentage Profit</q-item-section>
+              <q-item-section avatar>
+                {{
+                  computedProfit / computedTotalProductionCost
+                    ? ((computedProfit / computedTotalProductionCost) * 100).toFixed(2)
+                    : 0
+                }}
+                %
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-card>
+      </div>
+      <div class="col-xs-12 col-sm-5 col-md-5 q-pa-sm">
+        <q-expansion-item
+          class="shadow-1 overflow-hidden"
+          icon="location_city"
+          label="Filter Data"
+          header-class="bg-orange text-white"
+          expand-icon-class="text-white"
+          dense
+        >
+          <q-card bordered flat class="q-pa-sm">
+            <q-table
+              dense
+              grid
+              :rows="companies"
+              row-key="name"
+              :filter="filterCompanies"
+              hide-header
+            >
+              <template #top>
+                <q-input
+                  outlined
+                  rounded
+                  dense
+                  debounce="300"
+                  v-model="filterCompanies"
+                  placeholder="Search Company"
+                />
+              </template>
+              <template v-slot:item="props">
+                <q-btn
+                  @click="filterCompany(props.row)"
+                  size="xs"
+                  rounded
+                  :color="props.row.clicked ? 'orange' : 'primary'"
+                  :label="props.row.name"
+                  unelevated
+                  class="q-ma-sm col-xs-6 col-sm-3 col-md-3"
+                />
+              </template>
+            </q-table>
+          </q-card>
+        </q-expansion-item>
+      </div>
+    </div>
 
     <div v-if="isLoading">Loading...</div>
     <div v-else-if="isError">An error has occurred: {{ error }}</div>
+
     <q-table
       v-else
-      :rows="data"
+      :rows="entries"
       :columns="company_entry_columns"
       :grid="$q.screen.xs"
       row-key="product"
@@ -87,6 +133,17 @@
           </template>
         </q-input>
       </template>
+      <template v-slot:top-left>
+        <q-btn
+          v-if="reset"
+          dense
+          flat
+          color="orange"
+          icon="autorenew"
+          label="Reset"
+          @click="resetEntries()"
+        />
+      </template>
     </q-table>
   </div>
 </template>
@@ -110,26 +167,39 @@ import { exportFile, useQuasar } from "quasar";
 import { useRouter, useRoute } from "vue-router";
 import { company_entry_columns } from "src/utilities/columns/company_entry_columns";
 import { util_pagination } from "src/utilities/util_pagination";
-import { fetchData } from "src/utilities/commonMethods";
+import { fetchData, notifyUser } from "src/utilities/commonMethods";
 
 const router = useRouter();
 const route = useRoute();
 const $q = useQuasar();
 
 const entries = ref([]);
+const entries_data = ref([]);
 
-const { data, isLoading, isError, error } = useQuery(
-  "entries",
-  () => fetchData("entries"),
-  {
-    onSuccess: (data) => (entries.value = data),
-  }
-);
+const { isLoading, isError, error } = useQuery("entries", () => fetchData("entries"), {
+  onSuccess: (data) => {
+    entries_data.value = data;
+    entries.value = data;
+  },
+});
+
+const companies = ref([]);
+useQuery("companies", () => fetchData("companies"), {
+  onSuccess: (data) => {
+    companies.value = data.map((val) => {
+      return {
+        name: val.name,
+        clicked: false,
+      };
+    });
+  },
+});
 
 const pagination = ref(util_pagination(15));
 
 const filter = ref("");
-
+const filterCompanies = ref("");
+const reset = ref(false);
 const computedTotalProductionCost = computed(() => {
   return entries.value.reduce((a, b) => a + Number(b.unit_price) * Number(b.usage), 0);
 });
@@ -154,4 +224,18 @@ const excel_name = ref("All Entries");
 
 const exportTable = () =>
   exportExcel(entries.value, company_entry_columns, $q, exportFile, excel_name.value);
+
+const filterCompany = (row) => {
+  row.clicked = true;
+  reset.value = true;
+  entries.value = entries_data.value;
+  entries.value = entries.value.filter((val) => val.company == row.name);
+  if (entries.value.length < 1)
+    notifyUser($q, `${row.name} has no entries yet.`, "top", "red");
+};
+
+const resetEntries = () => {
+  entries.value = entries_data.value;
+  reset.value = false;
+};
 </script>

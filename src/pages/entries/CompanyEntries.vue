@@ -48,7 +48,7 @@
     <div v-if="isLoading">Loading...</div>
     <div v-else-if="isError">An error has occurred: {{ error }}</div>
     <q-table
-      v-else-if="data"
+      v-else
       :rows="data?.data"
       :columns="today_entry_columns"
       :grid="$q.screen.xs"

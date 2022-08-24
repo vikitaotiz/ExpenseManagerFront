@@ -86,7 +86,7 @@ const filter = ref("");
 const companies = ref([]);
 
 const { data, isLoading, isError } = useQuery(
-  "company_entries",
+  "company_today_entries",
   () => fetchData("company_entries"),
   {
     onSuccess: (data) => (companies.value = Object.values(data)),

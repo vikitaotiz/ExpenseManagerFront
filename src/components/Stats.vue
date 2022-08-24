@@ -5,7 +5,7 @@
 
     <q-card flat class="q-pa-md q-mb-md text-center">
       <b
-        ><router-link to="/entries" class="links"
+        ><router-link to="/all_entries" class="links"
           >All Entries: {{ stats?.all_entries }}</router-link
         ></b
       ></q-card
