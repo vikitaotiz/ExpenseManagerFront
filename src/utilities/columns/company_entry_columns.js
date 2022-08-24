@@ -15,7 +15,7 @@ export const company_entry_columns = [
     field: "parts",
     sortable: true,
   },
-  { name: "units", label: "Unit", field: "units", sortable: true },
+  // { name: "units", label: "Unit", field: "units", sortable: true },
   {
     name: "unit_price",
     label: "Unit Price",
@@ -50,7 +50,7 @@ export const company_entry_columns = [
   { name: "usage", label: "Usage", field: "usage", sortable: true },
   {
     name: "usage_cost",
-    label: "Usage Cost",
+    label: "Production Cost",
     field: "usage_cost",
     sortable: true,
   },
@@ -60,7 +60,26 @@ export const company_entry_columns = [
     field: "system_usage",
     sortable: true,
   },
-  { name: "user", label: "User", field: "user", sortable: true },
+  {
+    name: "usage_sales_cost",
+    label: "Total Sales Cost",
+    field: "usage_sales_cost",
+    sortable: true,
+  },
+  {
+    name: "net_profit",
+    label: "Net Profit",
+    field: "net_profit",
+    sortable: true,
+  },
+  {
+    name: "percentage_profit",
+    label: "Percentage Profit (%)",
+    field: "percentage_profit",
+    sortable: true,
+  },
+  { name: "company", label: "Company", field: "company", sortable: true },
+  { name: "user", label: "Created By", field: "user", sortable: true },
   {
     name: "created_at",
     label: "Created On",

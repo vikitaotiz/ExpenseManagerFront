@@ -60,6 +60,18 @@
     >
       <template v-slot:top-right>
         <q-spinner-grid v-if="loading" class="q-mr-lg" size="20px" />
+        <q-btn
+          rounded
+          v-if="data?.data.length > 0"
+          dense
+          unelevated
+          color="orange"
+          icon-right="archive"
+          label="Export to csv"
+          no-caps
+          @click="exportTable"
+          class="q-mr-md"
+        />
         <q-input
           v-if="data?.data.length > 1"
           borderless
@@ -99,6 +111,7 @@
 
 <script>
 import { useUserStore as store } from "src/stores/user-store";
+import { exportExcel } from "src/utilities/exportExcel";
 export default {
   preFetch({ currentRoute, previousRoute, redirect }) {
     const userStore = store();
@@ -110,7 +123,7 @@ export default {
 <script setup>
 import { ref, computed } from "vue";
 import { useMutation, useQuery, useQueryClient } from "vue-query";
-import { useQuasar } from "quasar";
+import { exportFile, useQuasar } from "quasar";
 
 import { getSingle } from "src/utilities/fetchWrapper.js";
 import { useUserStore } from "src/stores/user-store.js";
@@ -126,12 +139,16 @@ const queryClient = useQueryClient();
 const $q = useQuasar();
 
 const company_data = ref([]);
+const excel_name = ref("");
 
 const { data, isLoading, isError, error } = useQuery(
   ["today_entries", route.params.slug],
   () => getSingle("today_entries", route.params.slug),
   {
-    onSuccess: (data) => (company_data.value = data.data),
+    onSuccess: (data) => {
+      excel_name.value = `${data?.company_name?.toUpperCase()} Entries`;
+      company_data.value = data.data;
+    },
   }
 );
 
@@ -186,4 +203,7 @@ const computedProfit = computed(() => {
   );
   return selling_price - buying_price;
 });
+
+const exportTable = () =>
+  exportExcel(company_data.value, today_entry_columns, $q, exportFile, excel_name.value);
 </script>
