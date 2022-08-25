@@ -97,7 +97,6 @@
       v-else
       :rows="entries"
       :columns="company_entry_columns"
-      :grid="$q.screen.xs"
       row-key="product"
       separator="cell"
       v-model:pagination="pagination"

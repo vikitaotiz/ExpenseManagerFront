@@ -51,7 +51,6 @@
       v-else
       :rows="data?.data"
       :columns="today_entry_columns"
-      :grid="$q.screen.xs"
       row-key="product"
       separator="cell"
       v-model:pagination="pagination"

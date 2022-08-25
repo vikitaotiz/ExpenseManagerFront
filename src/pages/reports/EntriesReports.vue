@@ -22,7 +22,6 @@
       title="Entries"
       :rows="entries"
       :columns="entries_report_columns"
-      :grid="$q.screen.xs"
       row-key="product"
       separator="cell"
       v-model:pagination="pagination"
