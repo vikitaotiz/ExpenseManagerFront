@@ -2,7 +2,7 @@
   <div class="q-pa-md">
     <q-card dark bordered class="bg-primary q-pa-sm q-mb-md">
       <div class="row">
-        <div class="col">
+        <div class="col-xs-12 col-sm-3 col-md-3">
           <q-btn
             @click="$router.back()"
             color="white"
@@ -12,11 +12,11 @@
             label="Back "
           />
         </div>
-        <div class="col q-pt-sm">
+        <div class="col-xs-12 col-sm-3 col-md-3 q-pt-sm">
           <q-spinner-grid v-if="loading" class="q-mr-lg" size="20px" />
           <b>{{ category?.data?.title?.toUpperCase() }} </b>
         </div>
-        <div class="col">
+        <div class="col-xs-12 col-sm-3 col-md-3">
           <q-input
             v-if="category?.data?.products.length > 0"
             dense
@@ -32,13 +32,14 @@
             </template>
           </q-input>
         </div>
-        <div class="col top-right">
+        <div class="col-xs-12 col-sm-3 col-md-3 top-right">
           <q-btn
             @click="new_product_dialog = true"
             round
             color="orange"
             size="small"
             icon="add"
+            unelevated
           />
           <q-btn
             v-if="category?.data?.products.length < 1"
@@ -47,6 +48,7 @@
             color="red"
             size="small"
             icon="delete"
+            unelevated
           />
         </div>
       </div>

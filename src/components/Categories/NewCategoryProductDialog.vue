@@ -8,7 +8,7 @@
 
       <q-card-section class="q-pt-none">
         <div class="row">
-          <div class="col">
+          <div class="col-xs-12 col-sm-4 col-md-4">
             <q-input
               dense
               outlined
@@ -18,7 +18,7 @@
               class="q-ma-sm"
             />
           </div>
-          <div class="col">
+          <div class="col-xs-12 col-sm-4 col-md-4">
             <q-select
               clearable
               :options="units"
@@ -30,7 +30,7 @@
               class="q-ma-sm"
             />
           </div>
-          <div class="col">
+          <div class="col-xs-12 col-sm-4 col-md-4">
             <q-select
               clearable
               :options="stores"

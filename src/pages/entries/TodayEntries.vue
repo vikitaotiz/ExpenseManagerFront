@@ -30,7 +30,7 @@
           debounce="300"
           v-model="filter"
           placeholder="Search"
-          class="q-mr-md"
+          class="q-ma-sm"
           autofocus
         >
           <template v-slot:append>

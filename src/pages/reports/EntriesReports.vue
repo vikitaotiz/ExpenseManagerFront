@@ -39,7 +39,7 @@
           label="Export to csv"
           no-caps
           @click="exportTable"
-          class="q-mr-md"
+          class="q-ma-sm"
         />
         <q-input
           borderless
