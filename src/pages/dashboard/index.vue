@@ -4,12 +4,12 @@
       <div class="col-xs-12 col-sm-4 col-md-4 q-pa-sm">
         <q-card class="q-pa-sm"><DoughnutChart /></q-card>
       </div>
-      <div class="col-xs-12 col-sm-4 col-md-4 q-pa-sm">
+      <div class="col-xs-12 col-sm-3 col-md-3 q-pa-sm">
         <q-card class="q-pa-sm bg-orange">
           <Stats />
         </q-card>
       </div>
-      <div class="col-xs-12 col-sm-4 col-md-4 q-pa-sm">
+      <div class="col-xs-12 col-sm-5 col-md-5 q-pa-sm">
         <q-card class="q-pa-md">
           <BarChart />
         </q-card>

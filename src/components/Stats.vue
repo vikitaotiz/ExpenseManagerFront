@@ -3,42 +3,42 @@
     <div v-if="isLoading">Loading...</div>
     <div v-else-if="isError">An error has occurred</div>
 
-    <q-card flat class="q-pa-md q-mb-md text-center">
+    <q-card flat class="q-pa-sm q-mb-md text-center">
       <b
         ><router-link to="/all_entries" class="links"
           >All Entries: {{ stats?.all_entries }}</router-link
         ></b
       ></q-card
     >
-    <q-card flat class="q-pa-md q-mb-md text-center">
+    <q-card flat class="q-pa-sm q-mb-md text-center">
       <b
-        ><router-link to="/costings" class="links"
+        ><router-link to="/today_entries" class="links"
           >Today's Entries: {{ stats?.today_entries }}</router-link
         ></b
       >
     </q-card>
-    <q-card flat class="q-pa-md q-mb-md text-center">
+    <q-card flat class="q-pa-sm q-mb-md text-center">
       <b
         ><router-link to="/categories" class="links"
           >Categories: {{ stats?.categories }}</router-link
         ></b
       >
     </q-card>
-    <q-card flat class="q-pa-md q-mb-md text-center">
+    <q-card flat class="q-pa-sm q-mb-md text-center">
       <b
         ><router-link to="/all_products" class="links">
           Products: {{ stats?.products }}</router-link
         ></b
       >
     </q-card>
-    <q-card flat class="q-pa-md q-mb-md text-center">
+    <q-card flat class="q-pa-sm q-mb-md text-center">
       <b
         ><router-link to="/companies" class="links"
           >Companies: {{ stats?.companies }}</router-link
         ></b
       >
     </q-card>
-    <q-card flat class="q-pa-md text-center">
+    <q-card flat class="q-pa-sm text-center">
       <b
         ><router-link to="/users" class="links">Users: {{ stats?.users }}</router-link></b
       >

@@ -1,5 +1,5 @@
 <template>
-  <div class="text-center"><b>Category Products</b></div>
+  <div class="text-center"><b>Company Total Sales</b></div>
   <q-separator color="primary" />
   <Doughnut :chart-options="chartOptions" :chart-data="chartData" />
 </template>
@@ -48,13 +48,14 @@ export default {
   },
   methods: {
     async fetchCategories() {
-      const res = await fetchData("categories");
+      const res = await fetchData("company_charts");
+
       let arr = [];
       let colors = [];
       if (res && res.length > 0) {
         res.forEach((val) => {
-          this.chartData.labels.push(val.title);
-          arr.push(val.products);
+          this.chartData.labels.push(val.name);
+          arr.push(val.total_sales);
           colors.push(getRandomColor());
         });
 

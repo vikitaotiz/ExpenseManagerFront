@@ -1,15 +1,5 @@
 <template>
-  <Bar
-    :chart-options="chartOptions"
-    :chart-data="chartData"
-    :chart-id="chartId"
-    :dataset-id-key="datasetIdKey"
-    :plugins="plugins"
-    :css-classes="cssClasses"
-    :styles="styles"
-    :width="width"
-    :height="height"
-  />
+  <Bar :chart-options="chartOptions" :chart-data="chartData" />
 </template>
 
 <script>
@@ -24,6 +14,7 @@ import {
   CategoryScale,
   LinearScale,
 } from "chart.js";
+import { fetchData, getRandomColor } from "src/utilities/commonMethods";
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
 
@@ -32,58 +23,15 @@ export default {
   components: {
     Bar,
   },
-  props: {
-    chartId: {
-      type: String,
-      default: "bar-chart",
-    },
-    datasetIdKey: {
-      type: String,
-      default: "label",
-    },
-    width: {
-      type: Number,
-      default: 400,
-    },
-    height: {
-      type: Number,
-      default: 400,
-    },
-    cssClasses: {
-      default: "",
-      type: String,
-    },
-    styles: {
-      type: Object,
-      default: () => {},
-    },
-    plugins: {
-      type: Array,
-      default: () => [],
-    },
-  },
   data() {
     return {
       chartData: {
-        labels: [
-          "January",
-          "February",
-          "March",
-          "April",
-          "May",
-          "June",
-          "July",
-          "August",
-          "September",
-          "October",
-          "November",
-          "December",
-        ],
+        labels: [],
         datasets: [
           {
-            label: "Entries",
+            label: "Total Entries",
             backgroundColor: "#029E43",
-            data: [40, 20, 12, 39, 10, 40, 39, 80, 40, 20, 12, 11],
+            data: [],
           },
         ],
       },
@@ -92,6 +40,27 @@ export default {
         maintainAspectRatio: false,
       },
     };
+  },
+
+  created() {
+    this.fetchCategories();
+  },
+  methods: {
+    async fetchCategories() {
+      const res = await fetchData("entries_last_seven_days");
+      let arr = [];
+      let colors = [];
+      if (res && res.length > 0) {
+        res.forEach((val) => {
+          this.chartData.labels.push(val.day);
+          arr.push(val.records);
+          colors.push(getRandomColor());
+        });
+
+        this.chartData.datasets[0].data = arr;
+        this.chartData.datasets[0].backgroundColor = colors;
+      }
+    },
   },
 };
 </script>
