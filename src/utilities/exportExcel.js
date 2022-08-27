@@ -1,3 +1,5 @@
+import { exportFile } from "quasar";
+
 const wrapCsvValue = (val, formatFn, row) => {
   let formatted = formatFn !== void 0 ? formatFn(val, row) : val;
   formatted =
@@ -6,7 +8,8 @@ const wrapCsvValue = (val, formatFn, row) => {
   return `"${formatted}"`;
 };
 
-export const exportExcel = (rows, columns, $q, exportFile, excel_name) => {
+// export const exportExcel = (rows, columns, $q, exportFile, excel_name) => {
+export const exportExcel = (rows, columns, $q, excel_name) => {
   const content = [columns.map((col) => wrapCsvValue(col.label))]
     .concat(
       rows.map((row) =>

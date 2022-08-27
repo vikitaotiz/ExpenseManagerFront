@@ -222,7 +222,7 @@ const computedProfit = computed(() => {
 const excel_name = ref("All Entries");
 
 const exportTable = () =>
-  exportExcel(entries.value, company_entry_columns, $q, exportFile, excel_name.value);
+  exportExcel(entries.value, company_entry_columns, $q, excel_name.value);
 
 const filterCompany = (row) => {
   row.clicked = true;

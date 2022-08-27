@@ -122,7 +122,7 @@ export default {
 <script setup>
 import { ref, computed } from "vue";
 import { useMutation, useQuery, useQueryClient } from "vue-query";
-import { exportFile, useQuasar } from "quasar";
+import { useQuasar } from "quasar";
 
 import { getSingle } from "src/utilities/fetchWrapper.js";
 import { useUserStore } from "src/stores/user-store.js";
@@ -204,5 +204,5 @@ const computedProfit = computed(() => {
 });
 
 const exportTable = () =>
-  exportExcel(company_data.value, today_entry_columns, $q, exportFile, excel_name.value);
+  exportExcel(company_data.value, today_entry_columns, $q, excel_name.value);
 </script>

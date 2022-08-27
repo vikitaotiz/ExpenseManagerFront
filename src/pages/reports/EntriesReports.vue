@@ -90,7 +90,7 @@ export default {
 <script setup>
 import { ref } from "vue";
 import { useMutation } from "vue-query";
-import { exportFile, useQuasar } from "quasar";
+import { useQuasar } from "quasar";
 
 import { entries_report_columns } from "src/utilities/columns/entries_report_columns";
 import { baseUrl, headers } from "src/utilities/constants";
@@ -144,5 +144,5 @@ const { mutate } = useMutation((data) => fetchDataInDateRange(data), {
 });
 
 const exportTable = () =>
-  exportExcel(entries.value, entries_report_columns, $q, exportFile, excel_name.value);
+  exportExcel(entries.value, entries_report_columns, $q, excel_name.value);
 </script>
