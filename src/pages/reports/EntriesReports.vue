@@ -28,6 +28,20 @@
       :filter="filter"
       dense
     >
+      <template v-slot:top-left>
+        <q-btn
+          rounded
+          v-if="entries.length > 0"
+          dense
+          unelevated
+          color="blue"
+          icon="assignment"
+          label="Export to pdf"
+          no-caps
+          @click="exportPdf"
+          class="q-ma-sm"
+        />
+      </template>
       <template v-slot:top-right>
         <q-btn
           rounded
@@ -79,6 +93,7 @@
 
 <script>
 import { useUserStore as store } from "src/stores/user-store";
+
 export default {
   preFetch({ currentRoute, previousRoute, redirect }) {
     const userStore = store();
@@ -96,6 +111,7 @@ import { entries_report_columns } from "src/utilities/columns/entries_report_col
 import { baseUrl, headers } from "src/utilities/constants";
 import { util_pagination } from "src/utilities/util_pagination";
 import { exportExcel } from "src/utilities/exportExcel";
+import { exportDataToPdf } from "src/utilities/exportPdf";
 
 const currentDate = ref(new Date().toLocaleDateString("zh-Hans-CN"));
 
@@ -145,4 +161,8 @@ const { mutate } = useMutation((data) => fetchDataInDateRange(data), {
 
 const exportTable = () =>
   exportExcel(entries.value, entries_report_columns, $q, excel_name.value);
+
+const columns = entries_report_columns.map((val) => val.name);
+
+const exportPdf = () => exportDataToPdf(entries.value, columns, excel_name.value);
 </script>

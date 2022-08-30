@@ -1,11 +1,11 @@
 <template>
   <div class="q-pa-md">
     <div v-if="isLoading">Loading...</div>
-    <div v-else-if="isError">An error has occurred: {{ error }}</div>
+    <div v-else-if="isError">An error has occurred</div>
     <q-table
-      v-else-if="data"
+      v-else
       title="All Users"
-      :rows="data"
+      :rows="users"
       :columns="users_columns"
       :grid="$q.screen.xs"
       row-key="name"
@@ -56,92 +56,13 @@
       </template>
     </q-table>
 
-    <q-dialog v-model="editUserDialog" persistent>
-      <q-card style="width: 700px; max-width: 80vw">
-        <q-card-section class="row items-center">
-          <span class="q-ml-sm"><b>Edit User</b></span>
-        </q-card-section>
-
-        <q-card-section>
-          <div class="row">
-            <div class="q-pa-sm col-xs-12 col-sm-6 col-md-6">
-              <q-select
-                dense
-                outlined
-                v-model="user.country"
-                use-input
-                input-debounce="0"
-                label="Select Country"
-                :options="options"
-                option-label="name"
-                @filter="filterFn"
-                class="q-mb-md"
-                ><template v-slot:no-option>
-                  <q-item>
-                    <q-item-section class="text-grey"> No results </q-item-section>
-                  </q-item>
-                </template>
-              </q-select>
-            </div>
-            <div class="q-pa-sm col-xs-12 col-sm-6 col-md-6">
-              <code style="color: grey">e.g 0XXXXXXXXX - (start with zero)</code>
-              <q-input
-                dense
-                type="tel"
-                outlined
-                v-model="phoneNumber"
-                label="Enter your phone..."
-              >
-                <template v-slot:prepend>
-                  <code style="color: #029e43; font-size: 15px; padding-top: 11px">{{
-                    user?.country?.dial_code
-                  }}</code>
-                </template>
-              </q-input>
-              <small style="color: red"> {{ phoneError }}</small>
-            </div>
-          </div>
-          <div class="row">
-            <div class="q-pa-sm col-xs-12 col-sm-6 col-md-6">
-              <q-select
-                dense
-                outlined
-                v-model="user.role"
-                label="Select Role"
-                :options="roles"
-                option-label="name"
-                class="q-mb-md"
-              />
-            </div>
-            <div class="q-pa-sm col-xs-12 col-sm-6 col-md-6">
-              <q-input outlined dense v-model="user.name" label="Name" />
-            </div>
-          </div>
-          <div class="row">
-            <div class="q-pa-sm col-xs-12 col-sm-6 col-md-6">
-              <q-input outlined dense v-model="user.email" label="Email" />
-            </div>
-            <div class="q-pa-sm col-xs-12 col-sm-6 col-md-6">
-              <q-input outlined dense v-model="user.role" label="Role" />
-            </div>
-          </div>
-          <div class="row">
-            <div class="q-pa-sm col-xs-12 col-sm-6 col-md-6">
-              <q-input outlined dense v-model="user.company" label="Company" />
-            </div>
-            <div class="q-pa-sm col-xs-12 col-sm-6 col-md-6">
-              <q-input outlined dense v-model="user.password" label="Password" />
-            </div>
-          </div>
-        </q-card-section>
-
-        <q-card-actions align="right">
-          <q-btn flat label="Cancel" color="red" v-close-popup />
-          <q-space />
-          <q-btn flat label="Turn on Wifi" color="primary" v-close-popup />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
+    <UpdateUserDialog
+      @editSelectedUser="editSelectedUser"
+      v-model="editUserDialog"
+      :user="user"
+      :roles="roles"
+      :companies="companies"
+    />
   </div>
 </template>
 
@@ -149,8 +70,8 @@
 import { useUserStore as store } from "src/stores/user-store";
 export default {
   preFetch({ currentRoute, previousRoute, redirect }) {
-    const userStore = store();
-    !userStore?.user && redirect({ path: "/" });
+    const userStore1 = store();
+    !userStore1?.user && redirect({ path: "/" });
   },
 };
 </script>
@@ -160,36 +81,27 @@ import { reactive, ref } from "vue";
 import { useQuasar } from "quasar";
 import { useQuery, useMutation, useQueryClient } from "vue-query";
 
-import { getAll } from "src/utilities/fetchWrapper.js";
-import { useUserStore } from "src/stores/user-store.js";
-import { deleteData } from "src/utilities/commonMethods";
-import { countries } from "src/utilities/countries";
+import { deleteData, fetchData } from "src/utilities/commonMethods";
 import { users_columns } from "src/utilities/columns/users_columns";
 
-import {
-  validatePhone,
-  filterCountries,
-  combineCodeNumber,
-} from "src/utilities/commonMethods";
+import { validatePhone, combineCodeNumber } from "src/utilities/commonMethods";
 import { util_pagination } from "src/utilities/util_pagination";
+import UpdateUserDialog from "src/components/users/UpdateUserDialog.vue";
+import { update } from "src/utilities/fetchWrapper";
 
-const userStore = useUserStore();
 const queryClient = useQueryClient();
 const $q = useQuasar();
 
-const country_data = countries();
-const options = ref(country_data);
-
-const { data, isLoading, isError, error } = useQuery("users", () =>
-  getAll("users", userStore.user?.token)
-);
+const { data: users, isLoading, isError } = useQuery("users", () => fetchData("users"));
+const { data: roles } = useQuery("roles", () => fetchData("roles"));
+const { data: companies } = useQuery("companies", () => fetchData("companies"));
 
 const pagination = ref(util_pagination(15));
 
 const filter = ref("");
-const roles = ref([]);
 const editUserDialog = ref(false);
 const loading = ref(false);
+const user_id = ref("");
 
 const user = reactive({
   name: "",
@@ -199,21 +111,20 @@ const user = reactive({
   password: "",
   role: "",
   company: "",
+  phoneNumber: "",
+  phoneError: "",
+  dial_code: "",
 });
-
-const phoneNumber = ref("");
-const phoneError = ref("");
-const selected_user = ref("");
 
 const deleteUser = (row) => {
   const delete_product = confirm("Are you sure?");
   if (delete_product) {
     loading.value = true;
-    removUser(row.id);
+    removeUser(row.id);
   }
 };
 
-const { mutate: removUser } = useMutation((id) => deleteData(id, "users"), {
+const { mutate: removeUser } = useMutation((id) => deleteData(id, "users"), {
   onSuccess: (data) => {
     queryClient.refetchQueries("users");
     $q.notify({
@@ -227,15 +138,51 @@ const { mutate: removUser } = useMutation((id) => deleteData(id, "users"), {
 
 const editUser = (row) => {
   editUserDialog.value = true;
-
+  user_id.value = row.id;
   user.name = row.name;
+  user.phoneNumber = `0${row.phone.substring(4)}`;
   user.phone = row.phone;
   user.email = row.email;
   user.country = row.country;
   user.password = "";
   user.role = row.role;
   user.company = row.company;
+  user.dial_code = row.phone.substring(0, 4);
 };
 
-const filterFn = (val, update) => filterCountries(val, update, options, country_data);
+const editSelectedUser = () => {
+  if (!validatePhone(user.phoneNumber)) user.phoneError = "The number is invalid.";
+  else if (user.country && user.phoneNumber && user.name && user.password) {
+    const phone = combineCodeNumber(user.phoneNumber, user.dial_code);
+    const country_name = user.country.name;
+    user.phone = phone.replace(/\s/g, "");
+    user.country = country_name;
+    delete user.dial_code;
+    delete user.phoneError;
+    delete user.phoneNumber;
+
+    updateUser(user);
+    loading.value = true;
+  } else {
+    alert("Country, Phone and Password are required!");
+  }
+};
+
+const { mutate: updateUser } = useMutation(
+  (data) => update(`users/${user_id.value}`, data),
+  {
+    onSuccess: (data) => {
+      if (data.status === "success") {
+        queryClient.refetchQueries("users");
+        $q.notify({
+          message: data.message,
+          color: "orange",
+          position: "top-right",
+        });
+        loading.value = false;
+        editUserDialog.value = false;
+      }
+    },
+  }
+);
 </script>

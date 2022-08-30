@@ -52,55 +52,12 @@
       </template>
     </q-table>
 
-    <q-dialog v-model="new_store_dialog" persistent>
-      <q-card style="width: 700px; max-width: 80vw">
-        <q-card-section> <div class="text-h6">Add New Store</div> </q-card-section
-        ><q-separator class="q-mb-sm" />
-
-        <q-card-section class="q-pt-none">
-          <div class="row">
-            <div class="col q-pa-sm">
-              <q-input
-                dense
-                outlined
-                v-model="name"
-                label="Store name..."
-                type="text"
-                class="q-mb-md"
-                autofocus
-              />
-            </div>
-            <div class="col q-pa-sm">
-              <q-select
-                dense
-                outlined
-                v-model="company"
-                :options="companies"
-                option-label="name"
-                label="Company"
-                v-if="name"
-              />
-            </div>
-          </div>
-          <q-input
-            class="q-ma-sm"
-            v-model="description"
-            outlined
-            type="textarea"
-            label="Store description (optional)..."
-            v-if="company"
-          />
-
-          <small style="color: red">{{ errorMessage }}</small>
-        </q-card-section>
-
-        <q-card-actions align="right">
-          <q-btn flat label="Cancel" color="red" v-close-popup />
-          <q-space />
-          <q-btn v-if="company" @click="addStore" flat label="Add" color="primary" />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
+    <NewCompanyStoreDialog
+      @addStore="addStore"
+      v-model="new_store_dialog"
+      :company_store="company_store"
+      :companies="companies"
+    />
   </div>
 </template>
 
@@ -108,14 +65,14 @@
 import { useUserStore as store } from "src/stores/user-store";
 export default {
   preFetch({ currentRoute, previousRoute, redirect }) {
-    const userStore = store();
-    !userStore?.user && redirect({ path: "/" });
+    const userStore1 = store();
+    !userStore1?.user && redirect({ path: "/" });
   },
 };
 </script>
 
 <script setup>
-import { ref } from "vue";
+import { reactive, ref } from "vue";
 import { useQuasar } from "quasar";
 import { useQuery, useMutation, useQueryClient } from "vue-query";
 
@@ -123,6 +80,7 @@ import { company_store_columns } from "src/utilities/columns/CompanyStoreColumns
 import { fetchData, deleteData, notifyUser } from "src/utilities/commonMethods";
 import { post } from "src/utilities/fetchWrapper";
 import { util_pagination } from "src/utilities/util_pagination";
+import NewCompanyStoreDialog from "src/components/Companies/NewCompanyStoreDialog.vue";
 
 const queryClient = useQueryClient();
 const $q = useQuasar();
@@ -136,19 +94,24 @@ const { data: companies } = useQuery("companies", () => fetchData("companies"));
 const pagination = ref(util_pagination(15));
 
 const new_store_dialog = ref(false);
-const name = ref("");
-const description = ref("");
-const company = ref("");
+
+const company_store = reactive({
+  name: "",
+  description: "",
+  company: "",
+  errorMessage: "",
+});
+
 const filter = ref("");
 const loading = ref(false);
-const errorMessage = ref("");
 
 const addStore = () => {
   let data = {
-    name: name.value,
-    company_id: company.value.id,
-    description: description.value,
+    name: company_store.name,
+    company_id: company_store.company.id,
+    description: company_store.description,
   };
+
   addNewStore(data);
   loading.value = true;
 };
@@ -158,6 +121,7 @@ const { mutate: addNewStore } = useMutation((data) => post("stores", data), {
     if (data.status === "success") {
       queryClient.refetchQueries("stores");
       loading.value = false;
+      new_store_dialog.value = false;
       notifyUser($q, data.message, "top-right", "orange");
       clearInput();
     }

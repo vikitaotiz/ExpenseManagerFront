@@ -25,4 +25,14 @@ const post = async (url, data) => {
   return result;
 };
 
-export { getAll, getSingle, post };
+const update = async (url, data) => {
+  const res = await fetch(`${baseUrl}/${url}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+    headers,
+  });
+  const result = await res.json();
+  return result;
+};
+
+export { getAll, getSingle, post, update };

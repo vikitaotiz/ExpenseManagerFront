@@ -15,15 +15,6 @@
       dense
     >
       <template v-slot:top-right>
-        <q-btn
-          @click="exportPdf"
-          unelevated
-          dense
-          color="blue"
-          size="small"
-          icon="assignment"
-          class="q-mr-lg"
-        />
         <q-spinner-grid v-if="loading" class="q-mr-lg" size="30px" color="primary" />
 
         <q-input
@@ -75,7 +66,6 @@ import { company_columns } from "src/utilities/columns/company_columns";
 import { util_pagination } from "src/utilities/util_pagination";
 import NewCompanyDialog from "src/components/Companies/NewCompanyDialog.vue";
 import { post } from "src/utilities/fetchWrapper";
-import { exportDataToPdf } from "src/utilities/exportPdf";
 
 const { data, isLoading, isError, error } = useQuery(
   "companies",
@@ -156,12 +146,10 @@ const clearInput = () => {
 };
 
 const columns = company_columns.map((val) => val.name);
-const exportPdf = () => exportDataToPdf(companies.value, columns);
 </script>
 
 <script>
 import { useUserStore as store } from "src/stores/user-store";
-import CompanyEntriesVue from "../entries/CompanyEntries.vue";
 
 export default {
   preFetch({ currentRoute, previousRoute, redirect }) {

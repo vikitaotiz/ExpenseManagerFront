@@ -1,7 +1,7 @@
 <template>
   <div class="q-pa-md">
     <div class="row">
-      <div class="col-xs-12 col-sm-7 col-md-7 q-pa-sm">
+      <div class="col-xs-12 q-pa-sm" :class="{ 'col-sm-7 col-md-7': entries.length > 1 }">
         <q-card class="bg-blue text-white q-mb-md" flat>
           <q-card-actions>
             <q-btn @click="$router.back()" icon="arrow_back" dense flat label="Back" />
@@ -45,7 +45,7 @@
           </q-list>
         </q-card>
       </div>
-      <div class="col-xs-12 col-sm-5 col-md-5 q-pa-sm">
+      <div class="col-xs-12 col-sm-5 col-md-5 q-pa-sm" v-if="entries.length > 1">
         <q-expansion-item
           class="shadow-1 overflow-hidden"
           icon="location_city"
@@ -117,7 +117,7 @@
           class="q-ma-sm"
         />
         <q-input
-          v-if="entries.length > 0"
+          v-if="entries.length > 1"
           borderless
           dense
           outlined
@@ -142,6 +142,18 @@
           label="Reset"
           @click="resetEntries()"
         />
+        <q-btn
+          rounded
+          v-if="entries.length > 0"
+          dense
+          unelevated
+          color="blue"
+          icon="assignment"
+          label="Export to pdf"
+          no-caps
+          @click="exportPdf"
+          class="q-ma-sm"
+        />
       </template>
     </q-table>
   </div>
@@ -149,7 +161,8 @@
 
 <script>
 import { useUserStore as store } from "src/stores/user-store";
-import { exportExcel } from "src/utilities/exportExcel";
+import { headers } from "src/utilities/constants";
+
 export default {
   preFetch({ currentRoute, previousRoute, redirect }) {
     const userStore = store();
@@ -167,6 +180,8 @@ import { useRouter, useRoute } from "vue-router";
 import { company_entry_columns } from "src/utilities/columns/company_entry_columns";
 import { util_pagination } from "src/utilities/util_pagination";
 import { fetchData, notifyUser } from "src/utilities/commonMethods";
+import { exportExcel } from "src/utilities/exportExcel";
+import { exportDataToPdf } from "src/utilities/exportPdf";
 
 const router = useRouter();
 const route = useRoute();
@@ -185,12 +200,14 @@ const { isLoading, isError, error } = useQuery("entries", () => fetchData("entri
 const companies = ref([]);
 useQuery("companies", () => fetchData("companies"), {
   onSuccess: (data) => {
-    companies.value = data.map((val) => {
-      return {
-        name: val.name,
-        clicked: false,
-      };
-    });
+    companies.value = data
+      .filter((e) => e.entries.length > 0)
+      .map((val) => {
+        return {
+          name: val.name,
+          clicked: false,
+        };
+      });
   },
 });
 
@@ -199,6 +216,7 @@ const pagination = ref(util_pagination(15));
 const filter = ref("");
 const filterCompanies = ref("");
 const reset = ref(false);
+
 const computedTotalProductionCost = computed(() => {
   return entries.value.reduce((a, b) => a + Number(b.unit_price) * Number(b.usage), 0);
 });
@@ -237,4 +255,8 @@ const resetEntries = () => {
   entries.value = entries_data.value;
   reset.value = false;
 };
+
+const columns = company_entry_columns.map((val) => val.name);
+
+const exportPdf = () => exportDataToPdf(entries.value, columns, "All Entries");
 </script>

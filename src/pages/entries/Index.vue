@@ -55,10 +55,7 @@ const { data, isLoading, isError } = useQuery(
   "company_entries",
   () => fetchData("company_entries"),
   {
-    onSuccess: (data) => {
-      companies.value = Object.values(data);
-      console.log(companies.value.length);
-    },
+    onSuccess: (data) => (companies.value = Object.values(data)),
   }
 );
 

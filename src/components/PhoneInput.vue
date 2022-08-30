@@ -28,7 +28,7 @@
       >
         <template v-slot:prepend>
           <code style="color: #029e43; font-size: 15px; padding-top: 11px">{{
-            user.country?.dial_code
+            user.country?.dial_code ? user.country?.dial_code : user.dial_code
           }}</code>
         </template>
       </q-input>

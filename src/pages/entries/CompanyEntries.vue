@@ -57,6 +57,21 @@
       :filter="filter"
       dense
     >
+      <template v-slot:top-left>
+        <q-btn
+          rounded
+          v-if="data?.data.length > 0"
+          dense
+          unelevated
+          color="blue"
+          icon="assignment"
+          label="Export to pdf"
+          no-caps
+          @click="exportPdf"
+          class="q-ma-sm"
+        />
+      </template>
+
       <template v-slot:top-right>
         <q-spinner-grid v-if="loading" class="q-mr-lg" size="20px" />
         <q-btn
@@ -110,7 +125,7 @@
 
 <script>
 import { useUserStore as store } from "src/stores/user-store";
-import { exportExcel } from "src/utilities/exportExcel";
+
 export default {
   preFetch({ currentRoute, previousRoute, redirect }) {
     const userStore = store();
@@ -130,6 +145,8 @@ import { useRouter, useRoute } from "vue-router";
 import { today_entry_columns } from "src/utilities/columns/today_entry_columns";
 import { util_pagination } from "src/utilities/util_pagination";
 import { deleteData, notifyUser } from "src/utilities/commonMethods";
+import { exportDataToPdf } from "src/utilities/exportPdf";
+import { exportExcel } from "src/utilities/exportExcel";
 
 const userStore = useUserStore();
 const router = useRouter();
@@ -205,4 +222,7 @@ const computedProfit = computed(() => {
 
 const exportTable = () =>
   exportExcel(company_data.value, today_entry_columns, $q, excel_name.value);
+
+const columns = today_entry_columns.map((val) => val.name);
+const exportPdf = () => exportDataToPdf(company_data.value, columns, excel_name.value);
 </script>
