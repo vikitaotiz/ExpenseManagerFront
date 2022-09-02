@@ -20,7 +20,7 @@ import Reports from "pages/reports/Index.vue";
 import EntriesReports from "pages/reports/EntriesReports.vue";
 import Parts from "pages/parts/Index.vue";
 import Units from "pages/units/Index.vue";
-import Spilages from "pages/spilages/Index.vue";
+import Ingredients from "pages/Ingredients/Index.vue";
 
 const routes = [
   {
@@ -111,8 +111,8 @@ const routes = [
         component: EntriesReports,
       },
       {
-        path: "/spilages",
-        component: Spilages,
+        path: "/ingredients",
+        component: Ingredients,
       },
       {
         path: "optional_input",

@@ -60,20 +60,49 @@
         <div
           class="q-pa-sm col-xs-12 col-sm-6 col-md-3"
           style="text-decoration: none; color: #029e43"
-          @click="openEntryDialog(props.row)"
         >
-          <q-card style="cursor: pointer; border-radius: 10px" class="product">
+          <q-card style="cursor: pointer; border-radius: 10px">
             <q-list separator dense>
-              <q-item>
+              <q-item clickable @click="openEntryDialog(props.row)" class="product">
                 <q-item-section class="text-center">
                   <b>{{ props.row.name.toUpperCase() }}</b></q-item-section
                 >
               </q-item>
               <q-item>
-                <q-item-section class="text-blue">Units</q-item-section>
-                <q-item-section avatar class="text-blue">
-                  {{ props.row.unit }}
-                </q-item-section>
+                <q-expansion-item
+                  class="full width"
+                  dense
+                  icon="explore"
+                  :label="`Raw Materials ${props.row?.raw_materials?.length}`"
+                >
+                  <q-card>
+                    <q-card-section>
+                      <span v-if="props.row?.raw_materials?.length < 1"
+                        >No Raw Materials</span
+                      >
+                      <table v-else style="width: 100%; border-collapse: collapse">
+                        <thead>
+                          <th style="border: 1px solid #dddddd; text-align: left">
+                            Name
+                          </th>
+                          <th style="border: 1px solid #dddddd; text-align: left">
+                            Processing Unit
+                          </th>
+                        </thead>
+                        <tbody>
+                          <tr v-for="mat in props.row.raw_materials" :key="mat.id">
+                            <td style="border: 1px solid #dddddd; text-align: left">
+                              {{ mat.name }}
+                            </td>
+                            <td style="border: 1px solid #dddddd; text-align: left">
+                              {{ mat.processing_unit }}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </q-card-section>
+                  </q-card>
+                </q-expansion-item>
               </q-item>
             </q-list>
           </q-card>
@@ -152,6 +181,7 @@ let entry = reactive({
   system_usage: 0,
   stock_shortage: 0,
   stock_shortage_cost: 0,
+  ingredient_content: [],
 });
 
 const openEntryDialog = (data) => {
@@ -191,6 +221,7 @@ const submitEntry = async () => {
     system_usage: parseInt(entry.system_usage),
     stock_shortage: 0,
     stock_shortage_cost: 0,
+    ingredient_content: JSON.parse(JSON.stringify(product.value.raw_materials)),
   };
 
   addEntry(data);

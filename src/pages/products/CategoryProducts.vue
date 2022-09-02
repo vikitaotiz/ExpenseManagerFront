@@ -41,13 +41,14 @@
             icon="add"
             unelevated
           />
-          <q-btn
+          <q-icon
             v-if="category?.data?.products.length < 1"
             @click="removeCategory"
             class="q-ml-md"
-            color="red"
-            size="small"
-            icon="delete"
+            color="white"
+            size="sm"
+            name="delete"
+            style="cursor: pointer"
             unelevated
           />
         </div>
@@ -82,8 +83,9 @@
     <NewCategoryProductDialog
       v-model="new_product_dialog"
       :product="product"
-      :units="units"
+      :parts="parts"
       :stores="stores"
+      :ingredients="ingredients"
       @addProduct="addProduct"
       :errorMessage="errorMessage"
     />
@@ -128,6 +130,7 @@ const product = reactive({
   unit_id: "",
   store_id: "",
   category_id: "",
+  ingredient_content: [],
 });
 
 const { isLoading, isError, data: category, error } = useQuery(
@@ -138,8 +141,9 @@ const { isLoading, isError, data: category, error } = useQuery(
   }
 );
 
-const { data: units } = useQuery("units", () => fetchData("units"));
+const { data: parts } = useQuery("parts", () => fetchData("parts"));
 const { data: stores } = useQuery("stores", () => fetchData("stores"));
+const { data: ingredients } = useQuery("ingredients", () => fetchData("ingredients"));
 
 const pagination = ref(util_pagination(10));
 
@@ -165,13 +169,16 @@ const addProduct = () => {
     name: product.name,
     description: product.description,
     category_id: product.category_id,
-    unit_id: product.unit_id?.id,
-    store_id: product.store_id?.id,
+    // unit_id: product.unit_id?.id,
+    // store_id: product.store_id?.id,
     company_id: auth.user?.company_id,
+    ingredient_content: JSON.parse(JSON.stringify(product.ingredient_content)),
   };
 
   addNewProduct(data);
   loading.value = true;
+
+  // console.log(data);
 };
 
 const { mutate: addNewProduct } = useMutation((data) => post("products", data), {

@@ -21,4 +21,8 @@ export const roles_columns = [
     field: "created_at",
     sortable: true,
   },
+  {
+    name: "action",
+    label: "Action",
+  },
 ];

@@ -9,7 +9,7 @@ const getHeaders = () => {
 
 export const fetchData = async (exp_url) => {
   const res = await fetch(`${baseUrl}/${exp_url}`, { headers: getHeaders() });
-  if (res.status === 200) {
+  if (res?.status === 200) {
     const results = await res.json();
     return results.data;
   } else {

@@ -11,13 +11,13 @@
         <small v-if="todayOpeningStockLoading">Loading Opening Stock</small>
         <small v-if="todayOpeningStockError">There was an error</small>
         <q-space />
-        <span class="text-blue">Units : {{ product.unit }}</span>
+        <span class="text-blue">Raw Materials : {{ product.raw_materials.length }}</span>
       </q-card-actions>
       <q-separator color="blue" />
 
       <q-card-section class="q-pt-none">
-        <small
-          >Description :
+        <small>
+          Description :
           {{
             product.description ? product.description : "No product description."
           }}</small
@@ -66,6 +66,14 @@
               label="Purchases"
               dense
               class="q-ma-md"
+            />
+            <q-btn
+              v-if="entry.closing_stock"
+              @click="raw_materials = true"
+              dense
+              color="blue"
+              label="Raw Materials"
+              class="full-width"
             />
           </div>
         </div>
@@ -146,13 +154,17 @@
           color="primary"
         />
       </q-card-actions>
+      <ProductRawMaterialsDialog v-model="raw_materials" :product="product" />
     </q-card>
   </q-dialog>
 </template>
 
 <script setup>
+import { computed, ref } from "vue";
 import Calculations from "src/components/EntryCostings/Calculations.vue";
-import { computed } from "vue";
+import ProductRawMaterialsDialog from "./ProductRawMaterialsDialog.vue";
+
+const raw_materials = ref(false);
 
 let { entry, product, lockOpeningStock } = defineProps([
   "product",
@@ -173,7 +185,7 @@ const usage = computed(() => {
 const emit = defineEmits(["submitEntry", "closeDialog"]);
 </script>
 
-<style setup>
+<style scoped>
 .calc {
   /* background: #2196f3; */
   color: #fff;

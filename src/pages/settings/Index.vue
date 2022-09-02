@@ -96,6 +96,17 @@
         >
       </div>
     </div>
+    <div class="row">
+      <div class="col-xs-12 col-sm-6 col-md-6 q-mb-sm q-pa-sm">
+        <q-card flat class="q-pa-md">
+          <router-link to="/ingredients" class="setting_links">
+            <q-icon size="sm" class="q-mr-md" color="primary" name="location_city" />
+
+            Raw materials
+          </router-link></q-card
+        >
+      </div>
+    </div>
   </div>
 </template>
 
