@@ -20,7 +20,7 @@ import Reports from "pages/reports/Index.vue";
 import EntriesReports from "pages/reports/EntriesReports.vue";
 import Parts from "pages/parts/Index.vue";
 import Units from "pages/units/Index.vue";
-import Ingredients from "pages/Ingredients/Index.vue";
+import Ingredients from "pages/Ingredients/index.vue";
 
 const routes = [
   {
