@@ -27,7 +27,7 @@
           </q-item-section>
         </q-item>
         <q-item>
-          <q-item-section>Net profit</q-item-section>
+          <q-item-section>Gross profit</q-item-section>
           <q-item-section avatar>
             {{ computedProfit }}
           </q-item-section>
@@ -36,8 +36,10 @@
           <q-item-section>Percentage profit</q-item-section>
           <q-item-section avatar>
             {{
-              computedProfit / computedTotalProductionCost
-                ? ((computedProfit / computedTotalProductionCost) * 100).toFixed(2)
+              computedTotalProductionCost / computedTotalUsageCost
+                ? ((computedTotalProductionCost / computedTotalUsageCost) * 100).toFixed(
+                    2
+                  )
                 : 0
             }}
             %

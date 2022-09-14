@@ -40,12 +40,12 @@
 <script setup>
 import { countries } from "src/utilities/countries";
 import { ref } from "vue";
-import { filterCountries } from "src/utilities/commonMethods";
+import { filterData } from "src/utilities/commonMethods";
 
 defineProps(["user"]);
 
 const country_data = countries();
 const options = ref(country_data);
 
-const filterFn = (val, update) => filterCountries(val, update, options, country_data);
+const filterFn = (val, update) => filterData(val, update, options, country_data);
 </script>

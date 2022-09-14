@@ -60,16 +60,30 @@ export const validatePhone = (input_str) => {
   return re.test(input_str);
 };
 
-export const filterCountries = (val, update, options, country_data) => {
+export const filterData = (val, update, options, data) => {
   if (val === "") {
-    update(() => (options.value = country_data));
+    update(() => (options.value = data));
     return;
   }
 
   update(() => {
     const needle = val.toLowerCase();
-    options.value = country_data.filter(
+    options.value = data.filter(
       (v) => v.name.toLowerCase().indexOf(needle) > -1
+    );
+  });
+};
+
+export const filterData2 = (val, update, options, data) => {
+  if (val === "") {
+    update(() => (options.value = data));
+    return;
+  }
+
+  update(() => {
+    const needle = val.toLowerCase();
+    options.value = data.filter(
+      (v) => v.title.toLowerCase().indexOf(needle) > -1
     );
   });
 };

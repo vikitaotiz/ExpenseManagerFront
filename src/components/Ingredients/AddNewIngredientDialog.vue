@@ -5,15 +5,6 @@
         <span class="q-ml-sm"
           ><b>{{ ingredient.form_title }}</b></span
         >
-        <q-space />
-        <span lab flat bordered
-          ><b
-            >Total Cost :
-            {{
-              ingredient.buying_price ? ingredient.buying_price * ingredient.quantity : 0
-            }}</b
-          ></span
-        >
       </q-card-section>
       <q-separator color="orange" />
       <q-card-section>
@@ -50,17 +41,7 @@
         <div class="row">
           <div class="q-pa-sm col-xs-12 col-sm-4 col-md-4">
             <q-input
-              v-if="ingredient.processing_unit"
-              type="number"
-              outlined
-              dense
-              v-model="ingredient.quantity"
-              label="Quantity"
-            />
-          </div>
-          <div class="q-pa-sm col-xs-12 col-sm-4 col-md-4">
-            <q-input
-              v-if="ingredient.quantity"
+              v-if="ingredient.input_unit"
               type="number"
               outlined
               dense
@@ -68,10 +49,21 @@
               label="Buying Price Per Quantity"
             />
           </div>
-
           <div class="q-pa-sm col-xs-12 col-sm-4 col-md-4">
             <q-select
               v-if="ingredient.buying_price"
+              dense
+              outlined
+              v-model="ingredient.category_id"
+              label="Select Category"
+              :options="categories"
+              option-label="name"
+              class="q-mb-md"
+            />
+          </div>
+          <div class="q-pa-sm col-xs-12 col-sm-4 col-md-4">
+            <q-select
+              v-if="ingredient.category_id"
               dense
               outlined
               v-model="ingredient.store_id"
@@ -82,10 +74,30 @@
             />
           </div>
         </div>
+        <div class="row">
+          <div class="q-pa-sm col-xs-12 col-sm-4 col-md-4">
+            <q-select
+              v-if="ingredient.store_id"
+              dense
+              outlined
+              v-model="ingredient.supplier_id"
+              label="Select supplier (optional)"
+              :options="suppliers"
+              option-label="name"
+              class="q-mb-md"
+            />
+          </div>
+        </div>
         <small style="color: red">{{ ingredient.errorMessage }}</small>
       </q-card-section>
       <q-card-actions align="right">
-        <q-btn flat label="Cancel" color="red" v-close-popup />
+        <q-btn
+          @click="$emit('resetForm')"
+          flat
+          label="Cancel"
+          color="red"
+          v-close-popup
+        />
         <q-space />
         <q-btn
           v-if="ingredient.store_id"
@@ -100,8 +112,7 @@
 </template>
 
 <script setup>
-defineProps(["ingredient", "units", "parts", "stores"]);
+defineProps(["ingredient", "units", "parts", "stores", "categories", "suppliers"]);
 
-const emit = defineEmits(["addIngredient"]);
-// $table->string("input_unit"); // $table->string("processing_unit");
+const emit = defineEmits(["addIngredient", "resetForm"]);
 </script>

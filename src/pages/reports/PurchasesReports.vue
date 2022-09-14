@@ -4,7 +4,7 @@
       <q-card-actions>
         <q-btn @click="$router.back()" icon="arrow_back" dense flat label="Back" />
         <q-space />
-        <div>Entry Reports</div>
+        <div>Purchase Reports</div>
         <q-spinner-grid v-if="loading" class="q-ml-lg" size="20px" color="white" />
         <q-space />
         <div>From {{ currentDate?.from }}: to {{ currentDate?.to }}</div>
@@ -20,21 +20,20 @@
     </q-card>
 
     <q-table
-      v-if="entries.length > 0"
-      title="Entries"
-      :rows="entries"
-      :columns="entries_report_columns"
+      v-if="purchases.length > 0"
+      title="Purchases"
+      :rows="purchases"
+      :columns="purchases_report_columns"
       row-key="product"
       separator="cell"
       v-model:pagination="pagination"
       :filter="filter"
       dense
-      class="q-mt-sm"
     >
       <template v-slot:top-left>
         <q-btn
           rounded
-          v-if="entries.length > 0"
+          v-if="purchases.length > 0"
           dense
           unelevated
           color="blue"
@@ -48,7 +47,7 @@
       <template v-slot:top-right>
         <q-btn
           rounded
-          v-if="entries.length > 0"
+          v-if="purchases.length > 0"
           dense
           unelevated
           color="orange"
@@ -110,7 +109,7 @@ import { ref } from "vue";
 import { useMutation } from "vue-query";
 import { useQuasar } from "quasar";
 
-import { entries_report_columns } from "src/utilities/columns/entries_report_columns";
+import { purchases_report_columns } from "src/utilities/columns/purchases_report_columns";
 import { baseUrl, headers } from "src/utilities/constants";
 import { util_pagination } from "src/utilities/util_pagination";
 import { exportExcel } from "src/utilities/exportExcel";
@@ -122,14 +121,14 @@ const datePickerDialog = ref(false);
 const model = ref();
 const filter = ref("");
 const loading = ref(false);
-const entries = ref([]);
+const purchases = ref([]);
 const $q = useQuasar();
 const excel_name = ref("");
 
 const pagination = ref(util_pagination(15));
 
 const fetchDataInDateRange = async (data) => {
-  const res = await fetch(`${baseUrl}/entries_report`, {
+  const res = await fetch(`${baseUrl}/purchases_report`, {
     method: "POST",
     headers,
     body: JSON.stringify(data),
@@ -147,7 +146,7 @@ const submitDateRange = () => {
 
   mutate(data);
   loading.value = true;
-  excel_name.value = `Entries-Data-${data.from}-${data.to}`;
+  excel_name.value = `Purchases-Data-${data.from}-${data.to}`;
 };
 
 const optionsFn = (date) => {
@@ -157,15 +156,15 @@ const optionsFn = (date) => {
 const { mutate } = useMutation((data) => fetchDataInDateRange(data), {
   onSuccess: (data) => {
     datePickerDialog.value = false;
-    entries.value = data.data;
+    purchases.value = data.data;
     loading.value = false;
   },
 });
 
 const exportTable = () =>
-  exportExcel(entries.value, entries_report_columns, $q, excel_name.value);
+  exportExcel(purchases.value, purchases_report_columns, $q, excel_name.value);
 
-const columns = entries_report_columns.map((val) => val.name);
+const columns = purchases_report_columns.map((val) => val.name);
 
-const exportPdf = () => exportDataToPdf(entries.value, columns, excel_name.value);
+const exportPdf = () => exportDataToPdf(purchases.value, columns, excel_name.value);
 </script>

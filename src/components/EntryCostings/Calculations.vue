@@ -80,7 +80,8 @@ const percentage_profit = computed(() => {
 
   let buying_price = num * entry.unit_price;
   let selling_price = num * entry.selling_price;
-  profit = ((selling_price - buying_price) / buying_price) * 100;
+  // profit = ((selling_price - buying_price) / buying_price) * 100;
+  profit = (buying_price / selling_price) * 100;
   return profit ? profit.toFixed(2) : 0;
 });
 

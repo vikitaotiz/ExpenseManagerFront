@@ -1,4 +1,6 @@
 <template>
+  <CommonHeader :section_title="'Settings'" />
+
   <div class="q-pa-md">
     <div class="row">
       <div class="col-xs-12 col-sm-6 col-md-6 q-mb-sm q-pa-sm">
@@ -106,17 +108,39 @@
           </router-link></q-card
         >
       </div>
+      <div class="col-xs-12 col-sm-6 col-md-6 q-mb-sm q-pa-sm">
+        <q-card flat class="q-pa-md">
+          <router-link to="/purchases" class="setting_links">
+            <q-icon size="sm" class="q-mr-md" color="primary" name="location_city" />
+
+            Purchases
+          </router-link></q-card
+        >
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-12 col-sm-6 col-md-6 q-mb-sm q-pa-sm">
+        <q-card flat class="q-pa-md">
+          <router-link to="/suppliers" class="setting_links">
+            <q-icon size="sm" class="q-mr-md" color="primary" name="location_city" />
+
+            Suppliers
+          </router-link></q-card
+        >
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import { useUserStore as store } from "src/stores/user-store";
+import CommonHeader from "src/components/CommonHeader.vue";
 export default {
   preFetch({ currentRoute, previousRoute, redirect }) {
     const userStore = store();
     !userStore?.user && redirect({ path: "/" });
   },
+  components: { CommonHeader },
 };
 </script>
 

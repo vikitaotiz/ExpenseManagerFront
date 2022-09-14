@@ -1,6 +1,6 @@
 <template>
   <q-dialog persistent>
-    <q-card class="bg-primary text-white" style="width: 800px; max-width: 80vw">
+    <q-card class="bg-blue text-white" style="width: 800px; max-width: 80vw">
       <q-card-actions>
         <div class="text-h6" text-color="primary">Raw Materials</div>
       </q-card-actions>
@@ -41,6 +41,4 @@
 
 <script setup>
 defineProps(["product"]);
-
-const emit = defineEmits(["confirmRawMaterials"]);
 </script>

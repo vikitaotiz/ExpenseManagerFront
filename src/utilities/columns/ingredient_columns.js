@@ -27,15 +27,20 @@ export const ingredient_columns = [
     field: "processing_unit",
     sortable: true,
   },
-  { name: "quantity", label: "Quantity", field: "quantity", sortable: true },
-  {
-    name: "total_cost",
-    label: "Total Cost",
-    field: "total_cost",
-    sortable: true,
-  },
   { name: "store", label: "Store", field: "store", sortable: true },
   { name: "company", label: "Company", field: "company", sortable: true },
+  {
+    name: "material_category",
+    label: "Category",
+    field: "material_category",
+    sortable: true,
+  },
+  {
+    name: "supplier",
+    label: "Supplier",
+    field: "supplier",
+    sortable: true,
+  },
   {
     name: "created_at",
     label: "Created On",

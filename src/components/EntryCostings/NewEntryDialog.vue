@@ -11,7 +11,16 @@
         <small v-if="todayOpeningStockLoading">Loading Opening Stock</small>
         <small v-if="todayOpeningStockError">There was an error</small>
         <q-space />
-        <span class="text-blue">Raw Materials : {{ product.raw_materials.length }}</span>
+        <span class="text-blue">
+          <q-btn
+            v-if="entry.closing_stock"
+            @click="raw_materials = true"
+            dense
+            color="blue"
+            :label="`Raw Materials : ${product.raw_materials.length}`"
+            class="full-width"
+            unelevated
+        /></span>
       </q-card-actions>
       <q-separator color="blue" />
 
@@ -66,14 +75,6 @@
               label="Purchases"
               dense
               class="q-ma-md"
-            />
-            <q-btn
-              v-if="entry.closing_stock"
-              @click="raw_materials = true"
-              dense
-              color="blue"
-              label="Raw Materials"
-              class="full-width"
             />
           </div>
         </div>

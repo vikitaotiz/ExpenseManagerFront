@@ -18,9 +18,14 @@ import Companies from "pages/companies/Index.vue";
 import OptionalInput from "pages/companies/OptionalInput.vue";
 import Reports from "pages/reports/Index.vue";
 import EntriesReports from "pages/reports/EntriesReports.vue";
+import PurchasesReports from "pages/reports/PurchasesReports.vue";
 import Parts from "pages/parts/Index.vue";
 import Units from "pages/units/Index.vue";
 import Ingredients from "pages/Ingredients/index.vue";
+import Purchases from "pages/purchases/Index.vue";
+import AllPurchases from "pages/purchases/AllPurchases.vue";
+import TodayPurchases from "pages/purchases/TodayPurchases.vue";
+import Suppliers from "pages/Suppliers/Index.vue";
 
 const routes = [
   {
@@ -110,6 +115,11 @@ const routes = [
         path: "/entries_reports",
         component: EntriesReports,
       },
+
+      {
+        path: "/purchases_reports",
+        component: PurchasesReports,
+      },
       {
         path: "/ingredients",
         component: Ingredients,
@@ -117,6 +127,22 @@ const routes = [
       {
         path: "optional_input",
         component: OptionalInput,
+      },
+      {
+        path: "purchases",
+        component: Purchases,
+      },
+      {
+        path: "today_purchases",
+        component: TodayPurchases,
+      },
+      {
+        path: "all_purchases",
+        component: AllPurchases,
+      },
+      {
+        path: "suppliers",
+        component: Suppliers,
       },
     ],
   },

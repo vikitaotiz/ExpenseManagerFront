@@ -164,21 +164,18 @@ const { mutate: deleteCategory } = useMutation((slug) => deleteData(slug, "categ
 });
 
 const addProduct = () => {
+  product.ingredient_content = [];
   let auth = JSON.parse(localStorage.getItem(storageId));
   let data = {
     name: product.name,
     description: product.description,
     category_id: product.category_id,
-    // unit_id: product.unit_id?.id,
-    // store_id: product.store_id?.id,
     company_id: auth.user?.company_id,
     ingredient_content: JSON.parse(JSON.stringify(product.ingredient_content)),
   };
 
   addNewProduct(data);
   loading.value = true;
-
-  // console.log(data);
 };
 
 const { mutate: addNewProduct } = useMutation((data) => post("products", data), {
@@ -239,4 +236,6 @@ const clearInput = () => {
   product.unit_id = "";
   product.store_id = "";
 };
+
+// const resetForm = () => clearInput();
 </script>
