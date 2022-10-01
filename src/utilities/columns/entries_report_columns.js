@@ -15,7 +15,6 @@ export const entries_report_columns = [
     field: "parts",
     sortable: true,
   },
-  { name: "units", label: "Unit", field: "units", sortable: true },
   {
     name: "unit_price",
     label: "Unit Price",

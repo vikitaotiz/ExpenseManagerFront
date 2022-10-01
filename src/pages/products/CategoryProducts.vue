@@ -41,6 +41,15 @@
             icon="add"
             unelevated
           />
+          <q-btn
+            @click="open_edit_product_dialog"
+            round
+            class="q-ml-sm"
+            color="blue"
+            size="small"
+            icon="edit"
+            unelevated
+          />
           <q-icon
             v-if="category?.data?.products.length < 1"
             @click="removeCategory"
@@ -70,6 +79,14 @@
       <template v-slot:body-cell-action="props">
         <q-td :props="props">
           <q-icon
+            color="blue"
+            name="edit"
+            @click="editProduct(props.row)"
+            style="cursor: pointer"
+            size="20px"
+            class="q-mr-sm"
+          />
+          <q-icon
             color="red"
             name="delete"
             @click="deleteProduct(props.row)"
@@ -82,20 +99,21 @@
 
     <NewCategoryProductDialog
       v-model="new_product_dialog"
+      :raw_materials="raw_materials"
       :product="product"
-      :parts="parts"
-      :stores="stores"
-      :ingredients="ingredients"
       @addProduct="addProduct"
       :errorMessage="errorMessage"
+      @resetForm="resetForm"
     />
+
+    <EditCategoryDialog v-model="edit_product_dialog" :category="product.category" />
   </div>
 </template>
 
 <script>
 import { useUserStore as store } from "src/stores/user-store";
 export default {
-  preFetch({ currentRoute, previousRoute, redirect }) {
+  preFetch({ redirect }) {
     const userStore = store();
     !userStore?.user && redirect({ path: "/" });
   },
@@ -108,12 +126,13 @@ import { useQuasar } from "quasar";
 import { useRoute, useRouter } from "vue-router";
 import { useQuery, useMutation, useQueryClient } from "vue-query";
 
-import { getSingle, post } from "src/utilities/fetchWrapper.js";
-import { fetchData, deleteData, notifyUser } from "src/utilities/commonMethods";
+import { getSingle, post, update } from "src/utilities/fetchWrapper.js";
+import { deleteData, fetchData, notifyUser } from "src/utilities/commonMethods";
 import { storageId } from "src/utilities/constants";
 import { category_product_columns } from "src/utilities/columns/category_product_columns";
 import { util_pagination } from "src/utilities/util_pagination";
 import NewCategoryProductDialog from "src/components/Categories/NewCategoryProductDialog.vue";
+import EditCategoryDialog from "src/components/Categories/EditCategoryDialog.vue";
 
 const route = useRoute();
 const filter = ref("");
@@ -122,28 +141,33 @@ const $q = useQuasar();
 const queryClient = useQueryClient();
 
 const new_product_dialog = ref(false);
+const edit_product_dialog = ref(false);
 const loading = ref(false);
+const editSelectedProduct = ref(false);
 const errorMessage = ref("");
 const product = reactive({
   name: "",
   description: "",
-  unit_id: "",
-  store_id: "",
-  category_id: "",
-  ingredient_content: [],
+  category: "",
+  selling_price: 0,
+  formTitle: "Add New Product",
 });
+
+const selected_product = ref("");
 
 const { isLoading, isError, data: category, error } = useQuery(
   ["categories", route.params.slug],
   () => getSingle("categories", route.params.slug),
   {
-    onSuccess: (data) => (product.category_id = data.data.id),
+    onSuccess: (data) => (product.category = data.data),
   }
 );
 
-const { data: parts } = useQuery("parts", () => fetchData("parts"));
-const { data: stores } = useQuery("stores", () => fetchData("stores"));
-const { data: ingredients } = useQuery("ingredients", () => fetchData("ingredients"));
+const raw_materials = ref([]);
+
+useQuery("ingredients", () => fetchData("ingredients"), {
+  onSuccess: (data) => (raw_materials.value = data),
+});
 
 const pagination = ref(util_pagination(10));
 
@@ -167,14 +191,21 @@ const addProduct = () => {
   product.ingredient_content = [];
   let auth = JSON.parse(localStorage.getItem(storageId));
   let data = {
-    name: product.name,
+    name: product.name.name,
+    selling_price: product.selling_price,
     description: product.description,
-    category_id: product.category_id,
+    category_id: product.category.id,
     company_id: auth.user?.company_id,
-    ingredient_content: JSON.parse(JSON.stringify(product.ingredient_content)),
   };
 
-  addNewProduct(data);
+  if (editSelectedProduct.value) {
+    data.id = selected_product.value.id;
+    data.name = selected_product.value.name;
+    saveEditedProduct(data);
+  } else {
+    addNewProduct(data);
+  }
+
   loading.value = true;
 };
 
@@ -187,7 +218,6 @@ const { mutate: addNewProduct } = useMutation((data) => post("products", data), 
       clearInput();
       notifyUser($q, data.message, "top-right", "orange");
     }
-
     if (data.status === "error") {
       loading.value = false;
       errorMessage.value = data.message;
@@ -230,12 +260,60 @@ const { mutate: removeProduct } = useMutation((id) => deleteData(id, "products")
   },
 });
 
-const clearInput = () => {
-  product.name = "";
-  product.description = "";
-  product.unit_id = "";
-  product.store_id = "";
+const editProduct = (row) => {
+  selected_product.value = row;
+  editSelectedProduct.value = true;
+  product.formTitle = `Edit ${row.name}`;
+
+  product.name = row.name;
+  product.selling_price = row.selling_price;
+  product.description = row.description;
+
+  new_product_dialog.value = true;
 };
 
-// const resetForm = () => clearInput();
+const clearInput = () => {
+  product.name = "";
+  product.selling_price = 0;
+  product.description = "";
+  editSelectedProduct.value = false;
+  new_product_dialog.value = false;
+  product.formTitle = "Add New Product";
+  selected_product.value = "";
+};
+
+const resetForm = () => clearInput();
+
+const { mutate: saveEditedProduct } = useMutation(
+  (data) => update(`products/${data.id}`, data),
+  {
+    onSuccess: (data) => {
+      if (data.status === "success") {
+        queryClient.refetchQueries(["categories", route.params.slug]);
+        new_product_dialog.value = false;
+        loading.value = false;
+        clearInput();
+        notifyUser($q, data.message, "top-right", "orange");
+      }
+      if (data.status === "error") {
+        loading.value = false;
+        errorMessage.value = data.message;
+        notifyUser($q, data.message, "top-right", "red");
+      }
+    },
+
+    onError: (error) => {
+      new_product_dialog.value = false;
+      loading.value = false;
+      clearInput();
+      notifyUser($q, `There was an error: ${error}`, "top-right", "red");
+    },
+  }
+);
+
+// Edit category section
+const open_edit_product_dialog = () => {
+  edit_product_dialog.value = true;
+  console.log(product.category);
+};
 </script>

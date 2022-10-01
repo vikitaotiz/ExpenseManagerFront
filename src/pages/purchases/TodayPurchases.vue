@@ -101,6 +101,7 @@
       :purchase="purchase"
       :ingredients="ingredients"
       :units="units"
+      :suppliers="suppliers"
       :payment_modes="payment_modes"
       @resetForm="resetForm"
       :edit_purchase="edit_purchase"
@@ -160,6 +161,9 @@ const { data: ingredients } = useQuery("ingredients", () =>
 );
 
 const { data: units } = useQuery("units", () => getAll("units", userStore.user?.token));
+const { data: suppliers } = useQuery("suppliers", () =>
+  getAll("suppliers", userStore.user?.token)
+);
 
 const payment_modes = ref([]);
 const { isLoading: loadingPayments, isError: paymentsError } = useQuery(
@@ -191,6 +195,8 @@ const purchase = reactive({
   user_id: "",
   company_id: "",
   payment_mode_id: "",
+  supplier_id: "",
+  actual_stock: 0,
 
   errorMessage: "",
   form_title: "Add New Purchase",
@@ -234,6 +240,8 @@ const addPurchase = () => {
     total_amount: purchase.total_amount,
     unit_price: purchase.unit_price,
     payment_mode_id: purchase.payment_mode_id.id,
+    supplier_id: purchase.supplier_id.id,
+    actual_stock: purchase.actual_stock,
     balance: purchase.balance,
     user_id: userStore?.user?.user?.id,
     company_id: userStore?.user?.user?.company_id,

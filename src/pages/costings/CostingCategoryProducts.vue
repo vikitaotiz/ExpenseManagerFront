@@ -61,21 +61,25 @@
           class="q-pa-sm col-xs-12 col-sm-6 col-md-3"
           style="text-decoration: none; color: #029e43"
         >
-          <q-card style="cursor: pointer; border-radius: 10px">
+          <q-card
+            style="cursor: pointer; border-radius: 10px"
+            clickable
+            @click="openEntryDialog(props.row)"
+            class="product"
+          >
             <q-list separator dense>
-              <q-item clickable @click="openEntryDialog(props.row)" class="product">
+              <q-item>
                 <q-item-section class="text-center">
                   <b>{{ props.row.name.toUpperCase() }}</b></q-item-section
                 >
               </q-item>
-              <q-item>
-                <q-expansion-item
+              <!-- <q-expansion-item
                   class="full width"
                   dense
                   icon="explore"
                   :label="`Raw Materials ${props.row?.raw_materials?.length}`"
                 >
-                  <q-card>
+                  <q-card> 
                     <q-card-section>
                       <span v-if="props.row?.raw_materials?.length < 1"
                         >No Raw Materials</span
@@ -102,9 +106,14 @@
                       </table>
                     </q-card-section>
                   </q-card>
-                </q-expansion-item>
-              </q-item>
+                </q-expansion-item> -->
             </q-list>
+            <q-separator />
+
+            <q-card-actions>
+              <span> Selling Price </span><q-space /> Ksh
+              {{ props.row.selling_price }}</q-card-actions
+            >
           </q-card>
         </div>
       </template>
@@ -209,8 +218,9 @@ const submitEntry = async () => {
     product_id: product.value.id,
     units: product.value.unit,
     parts: entry.part.name,
-    unit_price: parseFloat(entry.unit_price),
-    selling_price: parseFloat(entry.selling_price),
+    // unit_price: parseFloat(entry.unit_price),
+    unit_price: 0,
+    selling_price: product.value.selling_price,
     purchases: parseInt(entry.purchases),
     purchases_cost: entry.unit_price * entry.purchases,
     opening_stock: parseInt(entry.opening_stock),
@@ -221,10 +231,10 @@ const submitEntry = async () => {
     system_usage: parseInt(entry.system_usage),
     stock_shortage: 0,
     stock_shortage_cost: 0,
-    ingredient_content: JSON.parse(JSON.stringify(product.value.raw_materials)),
   };
 
   addEntry(data);
+
   loading.value = true;
 };
 
@@ -285,6 +295,7 @@ const closeDialog = () => {
 
 <style scoped>
 .product:hover {
-  color: orangered;
+  color: orange;
+  border: 1px solid orange;
 }
 </style>

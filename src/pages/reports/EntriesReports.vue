@@ -118,6 +118,8 @@ import { exportDataToPdf } from "src/utilities/exportPdf";
 
 const currentDate = ref(new Date().toLocaleDateString("zh-Hans-CN"));
 
+console.log(currentDate.value);
+
 const datePickerDialog = ref(false);
 const model = ref();
 const filter = ref("");

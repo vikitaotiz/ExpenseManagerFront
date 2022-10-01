@@ -1,230 +1,196 @@
 <template>
-  <div class="q-pa-md">
-    <q-card class="bg-primary text-white q-mb-md">
-      <q-card-actions>
-        <q-btn @click="$router.back()" icon="arrow_back" dense flat label="Back" />
-        <q-space />
-        <b>
-          {{ data?.company_name?.toUpperCase() }} :
-          <small
-            ><code>(Entries - {{ data?.data?.length }})</code></small
-          >
-        </b>
-        <q-space />
-      </q-card-actions>
-      <q-separator color="orange" />
-      <q-list bordered separator dense>
-        <q-item>
-          <q-item-section>Total Production Cost</q-item-section>
-          <q-item-section avatar>
-            {{ computedTotalProductionCost }}
-          </q-item-section>
-        </q-item>
-        <q-item>
-          <q-item-section>Total Usage/Sales cost</q-item-section>
-          <q-item-section avatar>
-            {{ computedTotalUsageCost }}
-          </q-item-section>
-        </q-item>
-        <q-item>
-          <q-item-section>Gross profit</q-item-section>
-          <q-item-section avatar>
-            {{ computedProfit }}
-          </q-item-section>
-        </q-item>
-        <q-item>
-          <q-item-section>Percentage profit</q-item-section>
-          <q-item-section avatar>
-            {{
-              computedTotalProductionCost / computedTotalUsageCost
-                ? ((computedTotalProductionCost / computedTotalUsageCost) * 100).toFixed(
-                    2
-                  )
-                : 0
-            }}
-            %
-          </q-item-section>
-        </q-item>
-      </q-list>
-    </q-card>
-    <div v-if="isLoading">Loading...</div>
-    <div v-else-if="isError">An error has occurred: {{ error }}</div>
-    <q-table
-      v-else
-      :rows="data?.data"
-      :columns="today_entry_columns"
-      row-key="product"
-      separator="cell"
-      v-model:pagination="pagination"
-      :filter="filter"
-      dense
-    >
-      <template v-slot:top-left>
-        <q-btn
-          rounded
-          v-if="data?.data.length > 0"
-          dense
-          unelevated
-          color="blue"
-          icon="assignment"
-          label="Export to pdf"
-          no-caps
-          @click="exportPdf"
-          class="q-ma-sm"
-        />
-      </template>
-
-      <template v-slot:top-right>
-        <q-spinner-grid v-if="loading" class="q-mr-lg" size="20px" />
-        <q-btn
-          rounded
-          v-if="data?.data.length > 0"
-          dense
-          unelevated
-          color="orange"
-          icon-right="archive"
-          label="Export to csv"
-          no-caps
-          @click="exportTable"
-          class="q-ma-sm"
-        />
-        <q-input
-          v-if="data?.data.length > 1"
-          borderless
-          dense
-          outlined
-          rounded
-          debounce="300"
-          v-model="filter"
-          placeholder="Search"
-          class="q-mr-md"
-        >
-          <template v-slot:append>
-            <q-icon name="search" />
-          </template>
-        </q-input>
-      </template>
-
-      <template v-slot:body-cell-edit="props">
-        <q-td :props="props">
-          <q-icon color="info" name="edit" style="cursor: pointer" size="20px" />
-        </q-td>
-      </template>
-      <template v-slot:body-cell-delete="props">
-        <q-td :props="props">
-          <q-icon
-            color="red"
-            name="delete"
-            @click="deleteEntry(props.row)"
-            style="cursor: pointer"
-            size="20px"
-          />
-        </q-td>
-      </template>
-    </q-table>
+  <CommonHeader
+    :section_title="`Today Entries : (Quantities : ${total_entries_quantities}) : Ksh ${total_entries_amount}`"
+  />
+  <div class="row">
+    <div class="col-xs-12 col-sm-6 col-md-6 q-pa-sm">
+      <q-card class="q-pa-sm text-center"
+        ><b style="color: #029e43">Sales By Item Group</b>
+        <q-separator color="orange" />
+        <table style="width: 100%">
+          <thead>
+            <th>Categories</th>
+            <th>Percentage</th>
+            <th>Total Amount</th>
+          </thead>
+          <tbody>
+            <tr
+              v-for="entry in today_entries"
+              :key="entry.name"
+              style="text-align: center"
+            >
+              <td>{{ entry.name }}</td>
+              <td>
+                {{
+                  (
+                    (total_category_entries_amount(entry.entry_data) /
+                      total_entries_amount) *
+                    100
+                  ).toFixed(2)
+                }}
+                %
+              </td>
+              <td>{{ total_category_entries_amount(entry.entry_data) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </q-card>
+    </div>
+    <div class="col-xs-12 col-sm-6 col-md-6 q-pa-sm">
+      <q-card class="q-pa-sm">
+        <q-card class="q-pa-sm text-center"
+          ><b style="color: #029e43">Quantities By Item Group</b>
+          <q-separator color="orange" />
+          <table style="width: 100%">
+            <thead>
+              <th>Categories</th>
+              <th>Quantities %</th>
+              <th>Quantities</th>
+            </thead>
+            <tbody>
+              <tr
+                v-for="entry in today_entries"
+                :key="entry.name"
+                style="text-align: center"
+              >
+                <td>{{ entry.name }}</td>
+                <td>
+                  {{
+                    ((entry.entry_data.length / total_entries_quantities) * 100).toFixed(
+                      2
+                    )
+                  }}
+                </td>
+                <td>
+                  {{ entry.entry_data.length }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </q-card>
+      </q-card>
+    </div>
   </div>
+  <q-separator color="primary" />
+  <q-table
+    grid
+    title="Sales Categories"
+    :rows="today_entries"
+    row-key="name"
+    :filter="filter"
+    hide-header
+    v-model:pagination="pagination"
+  >
+    <template v-slot:top-right>
+      <q-spinner-grid v-if="loading" class="q-mr-lg" size="30px" color="primary" />
+
+      <q-input
+        borderless
+        dense
+        outlined
+        rounded
+        debounce="300"
+        v-model="filter"
+        placeholder="Search"
+        class="q-mr-md"
+        autofocus
+      >
+        <template v-slot:append>
+          <q-icon name="search" />
+        </template>
+      </q-input>
+    </template>
+
+    <q-separator />
+
+    <template v-slot:item="props">
+      <q-expansion-item
+        class="col-xs-12 col-sm-6 col-md-3 q-ma-sm"
+        style="border-radius: 30px"
+        :label="`${props.row.name} : ${total_category_entries_amount(
+          props.row.entry_data
+        )}`"
+        header-class="bg-primary text-white"
+        expand-icon-class="text-white"
+      >
+        <q-card>
+          <q-card-section>
+            <q-table
+              flat
+              dense
+              :rows="props.row.entry_data"
+              :columns="sales_category_columns"
+              bordered
+            />
+          </q-card-section>
+        </q-card>
+      </q-expansion-item>
+    </template>
+  </q-table>
 </template>
 
 <script>
 import { useUserStore as store } from "src/stores/user-store";
 
 export default {
-  preFetch({ currentRoute, previousRoute, redirect }) {
-    const userStore = store();
-    !userStore?.user && redirect({ path: "/" });
+  preFetch({ redirect }) {
+    const userStore1 = store();
+    !userStore1?.user && redirect({ path: "/" });
   },
 };
 </script>
 
 <script setup>
 import { ref, computed } from "vue";
-import { useMutation, useQuery, useQueryClient } from "vue-query";
-import { useQuasar } from "quasar";
+import { useQuery } from "vue-query";
+import { useRoute } from "vue-router";
 
-import { getSingle } from "src/utilities/fetchWrapper.js";
-import { useUserStore } from "src/stores/user-store.js";
-import { useRouter, useRoute } from "vue-router";
-import { today_entry_columns } from "src/utilities/columns/today_entry_columns";
+import CommonHeader from "src/components/CommonHeader.vue";
+import { getSingle } from "src/utilities/fetchWrapper";
 import { util_pagination } from "src/utilities/util_pagination";
-import { deleteData, notifyUser } from "src/utilities/commonMethods";
-import { exportDataToPdf } from "src/utilities/exportPdf";
-import { exportExcel } from "src/utilities/exportExcel";
+import { sales_category_columns } from "src/utilities/columns/sales_category_columns";
 
-const userStore = useUserStore();
-const router = useRouter();
 const route = useRoute();
-const queryClient = useQueryClient();
-const $q = useQuasar();
+const today_entries = ref([]);
+const loading = ref(false);
+const filter = ref("");
+const pagination = ref(util_pagination(10));
 
-const company_data = ref([]);
-const excel_name = ref("");
+const total_entries = ref("");
 
-const { data, isLoading, isError, error } = useQuery(
+useQuery(
   ["today_entries", route.params.slug],
   () => getSingle("today_entries", route.params.slug),
   {
     onSuccess: (data) => {
-      excel_name.value = `${data?.company_name?.toUpperCase()} Entries`;
-      company_data.value = data.data;
+      console.log(data);
+      total_entries.value = data.data;
+      const data1 = groupByCategory(data.data, "category");
+      today_entries.value = Object.keys(data1).map((key) => {
+        return { name: key, entry_data: data1[key] };
+      });
     },
   }
 );
 
-const pagination = ref(util_pagination(15));
-
-const filter = ref("");
-const loading = ref(false);
-
-const deleteEntry = (row) => {
-  const delete_entry = confirm(`Are you sure you want to delete ${row.product}`);
-  if (delete_entry) {
-    loading.value = true;
-    removeEntry(row.id);
-  }
+const groupByCategory = (arr, key) => {
+  return arr.reduce(function (rv, x) {
+    (rv[x[key]] = rv[x[key]] || []).push(x);
+    return rv;
+  }, {});
 };
 
-const { mutate: removeEntry } = useMutation((id) => deleteData(id, "entries"), {
-  onSuccess: (data) => {
-    queryClient.refetchQueries("entries");
-    notifyUser($q, data.message, "top-right", "orange");
-    loading.value = false;
-  },
-
-  onError: (error) => {
-    notifyUser($q, `There was an error : ${error}`, "top-right", "red");
-    loading.value = false;
-  },
+const total_entries_amount = computed(() => {
+  const tt = JSON.parse(JSON.stringify(total_entries.value));
+  return Array.isArray(tt) ? tt.reduce((a, b) => a + Number(b.usage_cost), 0) : 0;
 });
 
-const computedTotalProductionCost = computed(() => {
-  return company_data.value.reduce(
-    (a, b) => a + Number(b.unit_price) * Number(b.usage),
-    0
-  );
+const total_entries_quantities = computed(() => {
+  const tt = JSON.parse(JSON.stringify(total_entries.value));
+  return Array.isArray(tt) ? tt.reduce((a, b) => a + Number(b.usage), 0) : 0;
 });
 
-const computedTotalUsageCost = computed(() => {
-  return company_data.value.reduce(
-    (a, b) => a + Number(b.selling_price) * Number(b.usage),
-    0
-  );
-});
-
-const computedProfit = computed(() => {
-  const buying_price = company_data.value.reduce(
-    (a, b) => a + Number(b.unit_price) * Number(b.usage),
-    0
-  );
-  const selling_price = company_data.value.reduce(
-    (a, b) => a + Number(b.selling_price) * Number(b.usage),
-    0
-  );
-  return selling_price - buying_price;
-});
-
-const exportTable = () =>
-  exportExcel(company_data.value, today_entry_columns, $q, excel_name.value);
-
-const columns = today_entry_columns.map((val) => val.name);
-const exportPdf = () => exportDataToPdf(company_data.value, columns, excel_name.value);
+const total_category_entries_amount = (arr) => {
+  return Array.isArray(arr) ? arr.reduce((a, b) => a + Number(b.usage_cost), 0) : 0;
+};
 </script>

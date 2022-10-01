@@ -1,6 +1,6 @@
 <template>
   <q-dialog persistent>
-    <q-card style="width: 500px; max-width: 80vw">
+    <q-card style="width: 600px; max-width: 80vw">
       <q-card-section class="row items-center">
         <span class="q-ml-sm"
           ><b>{{ purchase.form_title }}</b></span
@@ -9,6 +9,26 @@
       <q-separator color="orange" />
       <q-card-section>
         <div class="row">
+          <div class="col-xs-12 col-sm-6 col-md-6 q-mb-sm q-pa-sm">
+            <q-select
+              :disable="edit_purchase"
+              dense
+              outlined
+              v-model="purchase.supplier_id"
+              use-input
+              input-debounce="0"
+              label="Select Supplier"
+              :options="options4"
+              option-label="name"
+              @filter="filterFn4"
+              class="q-mb-md"
+              ><template v-slot:no-option>
+                <q-item>
+                  <q-item-section class="text-grey"> No results </q-item-section>
+                </q-item>
+              </template>
+            </q-select>
+          </div>
           <div class="col-xs-12 col-sm-6 col-md-6 q-mb-sm q-pa-sm">
             <q-select
               :disable="edit_purchase"
@@ -38,8 +58,6 @@
               label="Quantity Purchased"
             />
           </div>
-        </div>
-        <div class="row">
           <div class="col-xs-12 col-sm-6 col-md-6 q-mb-sm q-pa-sm">
             <q-select
               dense
@@ -60,6 +78,8 @@
               </template>
             </q-select>
           </div>
+        </div>
+        <div class="row">
           <div class="col-xs-12 col-sm-6 col-md-6 q-mb-sm q-pa-sm">
             <q-input
               type="number"
@@ -69,8 +89,6 @@
               label="Issued Quantity"
             />
           </div>
-        </div>
-        <div class="row">
           <div class="col-xs-12 col-sm-6 col-md-6 q-mb-sm q-pa-sm">
             <q-input
               type="number"
@@ -80,6 +98,8 @@
               label="Opening stock"
             />
           </div>
+        </div>
+        <div class="row">
           <div class="col-xs-12 col-sm-6 col-md-6 q-mb-sm q-pa-sm">
             <q-input
               type="number"
@@ -87,6 +107,15 @@
               dense
               v-model="purchase.closing_stock"
               label="Closing Stock"
+            />
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-6 q-mb-sm q-pa-sm">
+            <q-input
+              type="number"
+              outlined
+              dense
+              v-model="purchase.actual_stock"
+              label="Actual Stock"
             />
           </div>
         </div>
@@ -161,6 +190,7 @@ const props = defineProps([
   "purchase",
   "ingredients",
   "units",
+  "suppliers",
   "payment_modes",
   "edit_purchase",
 ]);
@@ -170,14 +200,21 @@ const emit = defineEmits(["addPurchase", "resetForm"]);
 const options1 = ref(props.ingredients);
 const options2 = ref(props.units);
 const options3 = ref(props.payment_modes);
+const options4 = ref(props.suppliers);
 
 const filterFn1 = (val, update) => filterData(val, update, options1, props.ingredients);
 const filterFn2 = (val, update) => filterData2(val, update, options2, props.units);
 const filterFn3 = (val, update) => filterData(val, update, options3, props.payment_modes);
+const filterFn4 = (val, update) => filterData(val, update, options4, props.suppliers);
 
-const price_per_unit = computed(() =>
-  props.purchase?.total_amount && props.purchase?.quantity
-    ? (Number(props.purchase?.total_amount) / Number(props.purchase?.quantity)).toFixed(2)
-    : 0
-);
+const price_per_unit = computed(() => {
+  const result =
+    props.purchase?.total_amount && props.purchase?.quantity
+      ? (Number(props.purchase?.total_amount) / Number(props.purchase?.quantity)).toFixed(
+          2
+        )
+      : 0;
+  props.purchase.unit_price = result;
+  return result;
+});
 </script>

@@ -17,6 +17,13 @@
       <template v-slot:body-cell-action="props">
         <q-td :props="props">
           <q-icon
+            color="blue"
+            name="edit"
+            @click="editProduct(props.row)"
+            style="cursor: pointer"
+            size="20px"
+          />
+          <q-icon
             color="red"
             name="delete"
             @click="deleteProduct(props.row)"
@@ -84,11 +91,11 @@ const deleteProduct = (row) => {
   const delete_product = confirm("Are you sure you want to delete " + row.name + "?");
   if (delete_product) {
     loading.value = true;
-    removProduct(row.id);
+    removeProduct(row.id);
   }
 };
 
-const { mutate: removProduct } = useMutation((id) => deleteData(id, "products"), {
+const { mutate: removeProduct } = useMutation((id) => deleteData(id, "products"), {
   onSuccess: (data) => {
     queryClient.refetchQueries(["categories", route.params.slug]);
     $q.notify({
@@ -99,4 +106,8 @@ const { mutate: removProduct } = useMutation((id) => deleteData(id, "products"),
     loading.value = false;
   },
 });
+
+const editProduct = (row) => {
+  console.log(row);
+};
 </script>

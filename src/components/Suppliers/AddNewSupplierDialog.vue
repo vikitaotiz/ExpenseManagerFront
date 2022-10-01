@@ -23,7 +23,7 @@
           dense
           outlined
           v-model="supplier.company_id"
-          label="Select supplier (optional)"
+          label="Select company"
           :options="companies"
           option-label="name"
           class="q-mb-sm"

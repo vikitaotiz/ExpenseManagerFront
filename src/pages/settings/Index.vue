@@ -3,7 +3,7 @@
 
   <div class="q-pa-md">
     <div class="row">
-      <div class="col-xs-12 col-sm-6 col-md-6 q-mb-sm q-pa-sm">
+      <div class="col-xs-12 col-sm-3 col-md-3 q-mb-sm q-pa-sm">
         <q-card flat class="q-pa-md">
           <router-link to="/categories" class="setting_links">
             <q-icon size="sm" class="q-mr-md" color="primary" name="list" />
@@ -12,7 +12,7 @@
           </router-link></q-card
         >
       </div>
-      <div class="col-xs-12 col-sm-6 col-md-6 q-mb-sm q-pa-sm">
+      <div class="col-xs-12 col-sm-3 col-md-3 q-mb-sm q-pa-sm">
         <q-card flat class="q-pa-md">
           <q-icon size="sm" class="q-mr-md" color="primary" name="local_grocery_store" />
 
@@ -21,9 +21,7 @@
           </router-link></q-card
         >
       </div>
-    </div>
-    <div class="row">
-      <div class="col-xs-12 col-sm-6 col-md-6 q-mb-sm q-pa-sm">
+      <div class="col-xs-12 col-sm-3 col-md-3 q-mb-sm q-pa-sm">
         <q-card flat class="q-pa-md">
           <router-link to="/users" class="setting_links">
             <q-icon size="sm" class="q-mr-md" color="primary" name="group" />
@@ -32,7 +30,7 @@
           </router-link></q-card
         >
       </div>
-      <div class="col-xs-12 col-sm-6 col-md-6 q-mb-sm q-pa-sm">
+      <div class="col-xs-12 col-sm-3 col-md-3 q-mb-sm q-pa-sm">
         <q-card flat class="q-pa-md">
           <q-icon size="sm" class="q-mr-md" color="primary" name="lock_open" />
 
@@ -41,7 +39,7 @@
       </div>
     </div>
     <div class="row">
-      <div class="col-xs-12 col-sm-6 col-md-6 q-mb-sm q-pa-sm">
+      <div class="col-xs-12 col-sm-3 col-md-3 q-mb-sm q-pa-sm">
         <q-card flat class="q-pa-md">
           <router-link to="/companies" class="setting_links">
             <q-icon size="sm" class="q-mr-md" color="primary" name="location_city" />
@@ -50,16 +48,14 @@
           </router-link></q-card
         >
       </div>
-      <div class="col-xs-12 col-sm-6 col-md-6 q-mb-sm q-pa-sm">
+      <div class="col-xs-12 col-sm-3 col-md-3 q-mb-sm q-pa-sm">
         <q-card flat class="q-pa-md">
           <q-icon size="sm" class="q-mr-md" color="primary" name="trending_up" />
 
           <router-link to="/parts" class="setting_links"> Parts </router-link></q-card
         >
       </div>
-    </div>
-    <div class="row">
-      <div class="col-xs-12 col-sm-6 col-md-6 q-mb-sm q-pa-sm">
+      <div class="col-xs-12 col-sm-3 col-md-3 q-mb-sm q-pa-sm">
         <q-card flat class="q-pa-md">
           <router-link to="/units" class="setting_links">
             <q-icon size="sm" class="q-mr-md" color="primary" name="trending_up" />
@@ -68,7 +64,7 @@
           </router-link></q-card
         >
       </div>
-      <div class="col-xs-12 col-sm-6 col-md-6 q-mb-sm q-pa-sm">
+      <div class="col-xs-12 col-sm-3 col-md-3 q-mb-sm q-pa-sm">
         <q-card flat class="q-pa-md bg-blue">
           <q-icon size="sm" class="q-mr-md" color="white" name="content_paste" />
 
@@ -79,7 +75,7 @@
       </div>
     </div>
     <div class="row">
-      <div class="col-xs-12 col-sm-6 col-md-6 q-mb-sm q-pa-sm">
+      <div class="col-xs-12 col-sm-3 col-md-3 q-mb-sm q-pa-sm">
         <q-card flat class="q-pa-md">
           <router-link to="/company_stores" class="setting_links">
             <q-icon size="sm" class="q-mr-md" color="primary" name="location_city" />
@@ -88,7 +84,7 @@
           </router-link></q-card
         >
       </div>
-      <div class="col-xs-12 col-sm-6 col-md-6 q-mb-sm q-pa-sm">
+      <div class="col-xs-12 col-sm-3 col-md-3 q-mb-sm q-pa-sm">
         <q-card flat class="q-pa-md">
           <router-link to="/optional_input" class="setting_links">
             <q-icon size="sm" class="q-mr-md" color="primary" name="location_city" />
@@ -97,9 +93,7 @@
           </router-link></q-card
         >
       </div>
-    </div>
-    <div class="row">
-      <div class="col-xs-12 col-sm-6 col-md-6 q-mb-sm q-pa-sm">
+      <div class="col-xs-12 col-sm-3 col-md-3 q-mb-sm q-pa-sm">
         <q-card flat class="q-pa-md">
           <router-link to="/ingredients" class="setting_links">
             <q-icon size="sm" class="q-mr-md" color="primary" name="location_city" />
@@ -108,7 +102,7 @@
           </router-link></q-card
         >
       </div>
-      <div class="col-xs-12 col-sm-6 col-md-6 q-mb-sm q-pa-sm">
+      <div class="col-xs-12 col-sm-3 col-md-3 q-mb-sm q-pa-sm">
         <q-card flat class="q-pa-md">
           <router-link to="/purchases" class="setting_links">
             <q-icon size="sm" class="q-mr-md" color="primary" name="location_city" />
@@ -119,7 +113,7 @@
       </div>
     </div>
     <div class="row">
-      <div class="col-xs-12 col-sm-6 col-md-6 q-mb-sm q-pa-sm">
+      <div class="col-xs-12 col-sm-3 col-md-3 q-mb-sm q-pa-sm">
         <q-card flat class="q-pa-md">
           <router-link to="/suppliers" class="setting_links">
             <q-icon size="sm" class="q-mr-md" color="primary" name="location_city" />

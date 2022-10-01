@@ -78,7 +78,7 @@ import { util_pagination } from "src/utilities/util_pagination";
 const filter = ref("");
 const loading = ref(false);
 
-const pagination = ref(util_pagination(10));
+const pagination = ref(util_pagination(20));
 
 const { data: categories, isLoading, isError } = useQuery("categories", () =>
   fetchData("categories")

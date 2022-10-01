@@ -1,80 +1,49 @@
 <template>
   <q-dialog persistent>
-    <q-card style="width: 700px; max-width: 80vw">
+    <q-card style="width: 500px; max-width: 80vw">
       <q-card-section>
-        <div class="text-h6">Add New Product</div>
+        <div class="text-h6">{{ product.formTitle }}</div>
         <small style="color: red">{{ errorMessage }}</small> </q-card-section
       ><q-separator class="q-mb-sm" />
       <q-card-section class="q-pt-none">
         <div class="row">
-          <div class="col-xs-12 col-sm-4 col-md-4">
-            <q-input
+          <div class="col-xs-12 col-sm-12 col-md-12">
+            <q-select
               dense
               outlined
               v-model="product.name"
-              label="Product name..."
-              type="text"
-              class="q-ma-sm"
-            />
-          </div>
-          <div class="col-xs-12 col-sm-4 col-md-4">
-            <q-select
-              v-if="product.name"
-              clearable
-              :options="ingredients"
+              use-input
+              input-debounce="0"
+              label="Select Product"
+              :options="options1"
               option-label="name"
-              outlined
-              v-model="single_ingredient"
-              label="Select Raw Materials"
-              dense
-              class="q-ma-sm"
-            />
+              @filter="filterFn1"
+              class="q-mb-md"
+              ><template v-slot:no-option>
+                <q-item>
+                  <q-item-section class="text-grey"> No results </q-item-section>
+                </q-item>
+              </template>
+            </q-select>
           </div>
-          <div class="col-xs-12 col-sm-4 col-md-4 q-pt-sm">
-            <q-btn
-              v-if="single_ingredient"
-              @click="addIngredient(single_ingredient)"
+          <div class="col-xs-12 col-sm-12 col-md-12">
+            <q-input
+              v-if="product.name"
               dense
-              icon="add"
-              color="primary"
-              class="full-width"
-              label="Add Ingredient"
+              outlined
+              v-model="product.selling_price"
+              label="Selling Price..."
+              type="number"
+              class="q-ma-sm"
             />
           </div>
         </div>
-
-        <small v-if="ingredients_array.length > 0" class="q-mr-lg">
-          Raw Materials
-          <q-separator /><small style="color: red">{{ errorIngredient }}</small>
-          <q-card
-            v-for="ingredient in ingredients_array"
-            :key="ingredient.id"
-            class="bg-blue text-white q-mb-sm"
-            flat
-          >
-            <q-card-actions>
-              <span
-                ><b>{{ ingredient.name }}</b></span
-              >
-              <q-space />
-              <span>Measured in {{ ingredient.processing_unit }}</span>
-              <q-space />
-              <span
-                ><q-icon
-                  @click="removeIngredient(ingredient)"
-                  name="delete"
-                  size="sm"
-                  style="cursor: pointer"
-              /></span>
-            </q-card-actions>
-          </q-card>
-        </small>
         <q-separator />
-        <div v-if="ingredients_array.length > 0">
-          <q-checkbox v-model="desc" label="Product Description" />
+        <div v-if="product.selling_price">
+          <q-checkbox v-model="desc" label="Product Description (Optional)" />
         </div>
         <q-input
-          v-if="desc"
+          v-if="desc && product.selling_price"
           v-model="product.description"
           outlined
           type="textarea"
@@ -93,10 +62,10 @@
         />
         <q-space />
         <q-btn
-          v-if="ingredients_array.length > 0"
-          @click="aggregateProductData"
+          v-if="product.selling_price"
+          @click="$emit('addProduct')"
           flat
-          label="Add"
+          label="Save"
           color="primary"
         />
       </q-card-actions>
@@ -105,46 +74,16 @@
 </template>
 
 <script setup>
-import { useQuasar } from "quasar";
-import { notifyUser } from "src/utilities/commonMethods";
 import { ref } from "vue";
+import { filterData } from "src/utilities/commonMethods";
 
-const props = defineProps(["product", "parts", "ingredients", "errorMessage"]);
+const props = defineProps(["product", "errorMessage", "raw_materials"]);
 
 const emit = defineEmits(["addProduct", "resetForm"]);
-const $q = useQuasar();
 
-const single_ingredient = ref("");
-const errorIngredient = ref("");
-const all_ingredients = ref([]);
+const options1 = ref(props.raw_materials);
+
+const filterFn1 = (val, update) => filterData(val, update, options1, props.raw_materials);
+
 const desc = ref(false);
-
-let ingredients_array = ref(JSON.parse(JSON.stringify(props.product.ingredient_content)));
-
-const addIngredient = (ingredient) => {
-  let data = {
-    id: ingredient.id,
-    buying_price: ingredient.buying_price,
-    processing_unit: ingredient.processing_unit,
-    name: ingredient.name,
-    quantity: ingredient.quantity,
-  };
-
-  if (ingredients_array.value.find((x) => x.id === ingredient.id)) {
-    errorIngredient.value = `${ingredient.name} already exists.`;
-    notifyUser($q, `${ingredient.name} already exists.`, "top", "red");
-  } else {
-    ingredients_array.value.unshift(data);
-    errorIngredient.value = "";
-    single_ingredient.value = "";
-  }
-};
-
-const removeIngredient = (data) =>
-  (ingredients_array.value = ingredients_array.value.filter((val) => val.id !== data.id));
-
-const aggregateProductData = () => {
-  props.product.ingredient_content = ingredients_array.value;
-  emit("addProduct");
-};
 </script>

@@ -12,15 +12,8 @@
         <small v-if="todayOpeningStockError">There was an error</small>
         <q-space />
         <span class="text-blue">
-          <q-btn
-            v-if="entry.closing_stock"
-            @click="raw_materials = true"
-            dense
-            color="blue"
-            :label="`Raw Materials : ${product.raw_materials.length}`"
-            class="full-width"
-            unelevated
-        /></span>
+          <b>Ksh : {{ product.selling_price }}</b></span
+        >
       </q-card-actions>
       <q-separator color="blue" />
 
@@ -33,19 +26,8 @@
         >
         <q-separator />
         <div class="row">
-          <div class="col-xs-12 col-sm-3 col-md-3">
+          <div class="col-xs-12 col-sm-4 col-md-4">
             <q-input
-              type="number"
-              outlined
-              v-model="entry.unit_price"
-              label="Unit Price"
-              dense
-              class="q-ma-md"
-            />
-          </div>
-          <div class="col-xs-12 col-sm-3 col-md-3">
-            <q-input
-              v-if="entry.unit_price"
               type="number"
               outlined
               v-model="entry.opening_stock"
@@ -55,9 +37,9 @@
               :disable="lockOpeningStock"
             />
           </div>
-          <div class="col-xs-12 col-sm-3 col-md-3">
+          <div class="col-xs-12 col-sm-4 col-md-4">
             <q-input
-              v-if="entry.unit_price && entry.opening_stock"
+              v-if="entry.opening_stock"
               type="number"
               outlined
               v-model="entry.closing_stock"
@@ -66,7 +48,7 @@
               class="q-ma-md"
             />
           </div>
-          <div class="col-xs-12 col-sm-3 col-md-3">
+          <div class="col-xs-12 col-sm-4 col-md-4">
             <q-input
               v-if="entry.closing_stock"
               type="number"
@@ -77,27 +59,17 @@
               class="q-ma-md"
             />
           </div>
+          <div class="col-xs-12 col-sm-4 col-md-4"></div>
         </div>
+
         <div class="row">
-          <div class="col-xs-12 col-sm-3 col-md-3">
-            <q-input
-              v-if="entry.purchases"
-              type="number"
-              outlined
-              v-model="entry.selling_price"
-              label="Selling Price"
-              dense
-              class="q-ma-md"
-            />
-          </div>
-          <div class="col-xs-12 col-sm-3 col-md-3">
-            <q-card v-if="entry.selling_price" flat bordered class="q-ma-md q-pa-sm">
+          <div class="col-xs-12 col-sm-4 col-md-4">
+            <q-card v-if="entry.purchases" flat bordered class="q-ma-md q-pa-sm">
               Usage / Sales : {{ usage }}
             </q-card>
           </div>
-          <div class="col-xs-12 col-sm-3 col-md-3">
+          <div class="col-xs-12 col-sm-4 col-md-4">
             <q-input
-              v-if="entry.selling_price && usage"
               type="number"
               outlined
               v-model="entry.system_usage"
@@ -106,7 +78,7 @@
               class="q-ma-md"
             />
           </div>
-          <div class="col-xs-12 col-sm-3 col-md-3">
+          <div class="col-xs-12 col-sm-4 col-md-4">
             <q-select
               v-if="entry.system_usage"
               clearable
@@ -122,21 +94,6 @@
           </div>
         </div>
       </q-card-section>
-
-      <q-expansion-item
-        v-if="entry.unit_price"
-        class="shadow-1 overflow-hidden q-ma-sm"
-        style="border-radius: 30px"
-        icon="blur_linear"
-        label="Show Calculations"
-        header-class="bg-blue text-white"
-        expand-icon-class="text-white"
-        dense
-      >
-        <q-card bordered flat class="q-pa-sm">
-          <Calculations :entry="entry" />
-        </q-card>
-      </q-expansion-item>
 
       <q-separator color="primary" />
       <q-card-actions align="right">
@@ -162,7 +119,7 @@
 
 <script setup>
 import { computed, ref } from "vue";
-import Calculations from "src/components/EntryCostings/Calculations.vue";
+// import Calculations from "src/components/EntryCostings/Calculations.vue";
 import ProductRawMaterialsDialog from "./ProductRawMaterialsDialog.vue";
 
 const raw_materials = ref(false);
@@ -180,17 +137,9 @@ let { entry, product, lockOpeningStock } = defineProps([
 const usage = computed(() => {
   let res = 0;
   res = Number(entry.opening_stock) + Number(entry.purchases) - entry.closing_stock;
+  entry.usage = res;
   return res ? res : 0;
 });
 
 const emit = defineEmits(["submitEntry", "closeDialog"]);
 </script>
-
-<style scoped>
-.calc {
-  /* background: #2196f3; */
-  color: #fff;
-  height: 100%;
-  background: radial-gradient(circle, #35a2ff 0%, #014a88 100%);
-}
-</style>

@@ -16,7 +16,6 @@ export const product_columns = [
     sortable: true,
   },
   { name: "category", label: "Category", field: "category", sortable: true },
-  { name: "unit", label: "Unit", field: "unit", sortable: true },
   { name: "company", label: "Company", field: "company", sortable: true },
   {
     name: "created_at",

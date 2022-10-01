@@ -1,175 +1,133 @@
 <template>
-  <div class="q-pa-md">
-    <div class="row">
-      <div class="col-xs-12 q-pa-sm" :class="{ 'col-sm-7 col-md-7': entries.length > 1 }">
-        <q-card class="bg-blue text-white q-mb-md" flat>
-          <q-card-actions>
-            <q-btn @click="$router.back()" icon="arrow_back" dense flat label="Back" />
-            <q-space />
-            <b
-              ><code>(All Entries - {{ entries.length }})</code>
-            </b>
-            <q-space />
-          </q-card-actions>
-          <q-separator color="yellow" />
-          <q-list bordered separator dense>
-            <q-item>
-              <q-item-section>Total Production Cost</q-item-section>
-              <q-item-section avatar>
-                {{ computedTotalProductionCost }}
-              </q-item-section>
-            </q-item>
-            <q-item>
-              <q-item-section>Total Usage/Sales cost</q-item-section>
-              <q-item-section avatar>
-                {{ computedTotalUsageCost }}
-              </q-item-section>
-            </q-item>
-            <q-item>
-              <q-item-section>Gross profit</q-item-section>
-              <q-item-section avatar>
-                {{ computedProfit }}
-              </q-item-section>
-            </q-item>
-            <q-item>
-              <q-item-section>Average Percentage Profit</q-item-section>
-              <q-item-section avatar>
+  <CommonHeader
+    :section_title="`All Entries : (Quantities : ${total_entries_quantities}) : Ksh ${total_entries_amount}`"
+  />
+  <div class="row">
+    <div class="col-xs-12 col-sm-6 col-md-6 q-pa-sm">
+      <q-card class="q-pa-sm text-center"
+        >Sales By Item Group
+        <q-separator />
+        <table style="width: 100%">
+          <thead>
+            <th>Categories</th>
+            <th>Percentage</th>
+            <th>Total Amount</th>
+          </thead>
+          <tbody>
+            <tr v-for="entry in entries" :key="entry.name" style="text-align: center">
+              <td>{{ entry.name }}</td>
+              <td>
                 {{
-                  computedTotalProductionCost / computedTotalUsageCost
-                    ? (
-                        (computedTotalProductionCost / computedTotalUsageCost) *
-                        100
-                      ).toFixed(2)
-                    : 0
+                  (
+                    (total_category_entries_amount(entry.entry_data) /
+                      total_entries_amount) *
+                    100
+                  ).toFixed(2)
                 }}
                 %
-              </q-item-section>
-            </q-item>
-          </q-list>
-        </q-card>
-      </div>
-      <div class="col-xs-12 col-sm-5 col-md-5 q-pa-sm" v-if="entries.length > 1">
-        <q-expansion-item
-          class="shadow-1 overflow-hidden"
-          icon="location_city"
-          label="Filter Data"
-          header-class="bg-orange text-white"
-          expand-icon-class="text-white"
-          dense
-        >
-          <q-card bordered flat class="q-pa-sm">
-            <q-table
-              dense
-              grid
-              :rows="companies"
-              row-key="name"
-              :filter="filterCompanies"
-              hide-header
-            >
-              <template #top>
-                <q-input
-                  outlined
-                  rounded
-                  dense
-                  debounce="300"
-                  v-model="filterCompanies"
-                  placeholder="Search Company"
-                />
-              </template>
-              <template v-slot:item="props">
-                <q-btn
-                  @click="filterCompany(props.row)"
-                  size="xs"
-                  rounded
-                  :color="props.row.clicked ? 'orange' : 'primary'"
-                  :label="props.row.name"
-                  unelevated
-                  class="q-ma-sm col-xs-6 col-sm-3 col-md-3"
-                />
-              </template>
-            </q-table>
-          </q-card>
-        </q-expansion-item>
-      </div>
+              </td>
+              <td>{{ total_category_entries_amount(entry.entry_data) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </q-card>
     </div>
-
-    <div v-if="isLoading">Loading...</div>
-    <div v-else-if="isError">An error has occurred: {{ error }}</div>
-
-    <q-table
-      v-else
-      :rows="entries"
-      :columns="company_entry_columns"
-      row-key="product"
-      separator="cell"
-      v-model:pagination="pagination"
-      :filter="filter"
-      dense
-    >
-      <template v-slot:top-right>
-        <q-btn
-          rounded
-          v-if="entries.length > 0"
-          dense
-          unelevated
-          color="orange"
-          icon-right="archive"
-          label="Export to csv"
-          no-caps
-          @click="exportTable"
-          class="q-ma-sm"
-        />
-        <q-input
-          v-if="entries.length > 1"
-          borderless
-          dense
-          outlined
-          rounded
-          debounce="300"
-          v-model="filter"
-          placeholder="Search"
-          class="q-mr-md"
-        >
-          <template v-slot:append>
-            <q-icon name="search" />
-          </template>
-        </q-input>
-      </template>
-      <template v-slot:top-left>
-        <q-btn
-          v-if="reset"
-          dense
-          flat
-          color="orange"
-          icon="autorenew"
-          label="Reset"
-          @click="resetEntries()"
-        />
-        <q-btn
-          rounded
-          v-if="entries.length > 0"
-          dense
-          unelevated
-          color="blue"
-          icon="assignment"
-          label="Export to pdf"
-          no-caps
-          @click="exportPdf"
-          class="q-ma-sm"
-        />
-      </template>
-    </q-table>
+    <div class="col-xs-12 col-sm-6 col-md-6 q-pa-sm">
+      <q-card class="q-pa-sm">
+        <q-card class="q-pa-sm text-center"
+          >Quantities By Item Group
+          <q-separator />
+          <table style="width: 100%">
+            <thead>
+              <th>Categories</th>
+              <th>Quantities %</th>
+              <th>Quantities</th>
+            </thead>
+            <tbody>
+              <tr v-for="entry in entries" :key="entry.name" style="text-align: center">
+                <td>{{ entry.name }}</td>
+                <td>
+                  {{
+                    ((entry.entry_data.length / total_entries_quantities) * 100).toFixed(
+                      2
+                    )
+                  }}
+                </td>
+                <td>
+                  {{ entry.entry_data.length }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </q-card>
+      </q-card>
+    </div>
   </div>
+  <q-separator color="primary" />
+  <q-table
+    grid
+    title="Sales Categories"
+    :rows="entries"
+    row-key="name"
+    :filter="filter"
+    hide-header
+    v-model:pagination="pagination"
+  >
+    <template v-slot:top-right>
+      <q-spinner-grid v-if="loading" class="q-mr-lg" size="30px" color="primary" />
+
+      <q-input
+        borderless
+        dense
+        outlined
+        rounded
+        debounce="300"
+        v-model="filter"
+        placeholder="Search"
+        class="q-mr-md"
+        autofocus
+      >
+        <template v-slot:append>
+          <q-icon name="search" />
+        </template>
+      </q-input>
+    </template>
+
+    <q-separator />
+
+    <template v-slot:item="props">
+      <q-expansion-item
+        class="col-xs-12 col-sm-6 col-md-3 q-ma-sm"
+        style="border-radius: 30px"
+        :label="`${props.row.name} : ${total_category_entries_amount(
+          props.row.entry_data
+        )}`"
+        header-class="bg-primary text-white"
+        expand-icon-class="text-white"
+      >
+        <q-card>
+          <q-card-section>
+            <q-table
+              flat
+              dense
+              :rows="props.row.entry_data"
+              :columns="sales_category_columns"
+              bordered
+            />
+          </q-card-section>
+        </q-card>
+      </q-expansion-item>
+    </template>
+  </q-table>
 </template>
 
 <script>
 import { useUserStore as store } from "src/stores/user-store";
-import { headers } from "src/utilities/constants";
 
 export default {
-  preFetch({ currentRoute, previousRoute, redirect }) {
-    const userStore = store();
-    !userStore?.user && redirect({ path: "/" });
+  preFetch({ redirect }) {
+    const userStore1 = store();
+    !userStore1?.user && redirect({ path: "/" });
   },
 };
 </script>
@@ -177,89 +135,58 @@ export default {
 <script setup>
 import { ref, computed } from "vue";
 import { useQuery } from "vue-query";
-import { exportFile, useQuasar } from "quasar";
+import CommonHeader from "src/components/CommonHeader.vue";
+import { fetchData } from "src/utilities/commonMethods";
 
-import { useRouter, useRoute } from "vue-router";
-import { company_entry_columns } from "src/utilities/columns/company_entry_columns";
 import { util_pagination } from "src/utilities/util_pagination";
-import { fetchData, notifyUser } from "src/utilities/commonMethods";
-import { exportExcel } from "src/utilities/exportExcel";
-import { exportDataToPdf } from "src/utilities/exportPdf";
-
-const router = useRouter();
-const route = useRoute();
-const $q = useQuasar();
+import { sales_category_columns } from "src/utilities/columns/sales_category_columns";
 
 const entries = ref([]);
-const entries_data = ref([]);
-
-const { isLoading, isError, error } = useQuery("entries", () => fetchData("entries"), {
-  onSuccess: (data) => {
-    entries_data.value = data;
-    entries.value = data;
-  },
-});
-
-const companies = ref([]);
-useQuery("companies", () => fetchData("companies"), {
-  onSuccess: (data) => {
-    companies.value = data
-      .filter((e) => e.entries.length > 0)
-      .map((val) => {
-        return {
-          name: val.name,
-          clicked: false,
-        };
-      });
-  },
-});
-
-const pagination = ref(util_pagination(15));
-
+const loading = ref(false);
 const filter = ref("");
-const filterCompanies = ref("");
-const reset = ref(false);
+const pagination = ref(util_pagination(10));
 
-const computedTotalProductionCost = computed(() => {
-  return entries.value.reduce((a, b) => a + Number(b.unit_price) * Number(b.usage), 0);
+const total_entries = ref("");
+
+useQuery("entries", () => fetchData("entries"), {
+  onSuccess: (data) => {
+    console.log("All sales ", data);
+
+    total_entries.value = data;
+    const data1 = groupByCategory(data, "category");
+    entries.value = Object.keys(data1).map((key) => {
+      return { name: key, entry_data: data1[key] };
+    });
+  },
 });
 
-const computedTotalUsageCost = computed(() => {
-  return entries.value.reduce((a, b) => a + Number(b.selling_price) * Number(b.usage), 0);
-});
-
-const computedProfit = computed(() => {
-  const buying_price = entries.value.reduce(
-    (a, b) => a + Number(b.unit_price) * Number(b.usage),
-    0
-  );
-  const selling_price = entries.value.reduce(
-    (a, b) => a + Number(b.selling_price) * Number(b.usage),
-    0
-  );
-  return selling_price - buying_price;
-});
-
-const excel_name = ref("All Entries");
-
-const exportTable = () =>
-  exportExcel(entries.value, company_entry_columns, $q, excel_name.value);
-
-const filterCompany = (row) => {
-  row.clicked = true;
-  reset.value = true;
-  entries.value = entries_data.value;
-  entries.value = entries.value.filter((val) => val.company == row.name);
-  if (entries.value.length < 1)
-    notifyUser($q, `${row.name} has no entries yet.`, "top", "red");
+const groupByCategory = (arr, key) => {
+  return arr.reduce(function (rv, x) {
+    (rv[x[key]] = rv[x[key]] || []).push(x);
+    return rv;
+  }, {});
 };
 
-const resetEntries = () => {
-  entries.value = entries_data.value;
-  reset.value = false;
+const total_entries_amount = computed(() => {
+  const tt = JSON.parse(JSON.stringify(total_entries.value));
+  return Array.isArray(tt) ? tt.reduce((a, b) => a + Number(b.usage_cost), 0) : 0;
+});
+
+const total_entries_quantities = computed(() => {
+  const tt = JSON.parse(JSON.stringify(total_entries.value));
+  return Array.isArray(tt) ? tt.reduce((a, b) => a + Number(b.usage), 0) : 0;
+});
+
+const total_category_entries_amount = (arr) => {
+  return Array.isArray(arr) ? arr.reduce((a, b) => a + Number(b.usage_cost), 0) : 0;
 };
 
-const columns = company_entry_columns.map((val) => val.name);
+const total_category_entry_quanntities = (arr) => {
+  return Array.isArray(arr) ? arr.reduce((a, b) => a + Number(b.usage), 0) : 0;
+};
 
-const exportPdf = () => exportDataToPdf(entries.value, columns, "All Entries");
+const percentage_qty_category = (amt) => {
+  return Number(amt) / Number(total_entries_amount);
+  // return ((Number(amt) / Number(total_entries_amount)) * 100).toFixed(2);
+};
 </script>
