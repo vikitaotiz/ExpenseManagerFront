@@ -27,4 +27,6 @@ export const sales_category_columns = [
     field: "usage_cost",
     sortable: true,
   },
+  { name: "edit", label: "Edit" },
+  { name: "delete", label: "Delete" },
 ];

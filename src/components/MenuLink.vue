@@ -6,7 +6,7 @@
       clickable
       v-ripple
       :to="link.to"
-      v-on="link.text === 'Entries' ? { click: () => readEntries() } : {}"
+      v-on="link.text === 'Sales' ? { click: () => readSales() } : {}"
     >
       <q-item-section avatar>
         <q-icon color="primary" :name="link.icon" />
@@ -15,7 +15,7 @@
       <q-item-section
         ><b>{{ link.text }}</b
         ><q-badge
-          v-if="link.text === 'Entries' && entryStore.today_entries > 0"
+          v-if="link.text === 'Sales' && entryStore.today_entries > 0"
           color="red"
           floating
           >{{ entryStore.today_entries }}+</q-badge
@@ -36,5 +36,5 @@ const entryStore = useEntryStore();
 const links = ref(app_links);
 const userStore = useUserStore();
 
-const readEntries = () => entryStore.clearEntry();
+const readSales = () => entryStore.clearEntry();
 </script>

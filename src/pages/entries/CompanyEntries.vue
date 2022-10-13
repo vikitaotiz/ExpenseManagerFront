@@ -121,7 +121,24 @@
               :rows="props.row.entry_data"
               :columns="sales_category_columns"
               bordered
-            />
+            >
+              <template v-slot:body-cell-edit="props">
+                <q-td :props="props">
+                  <q-icon color="info" name="edit" style="cursor: pointer" size="20px" />
+                </q-td>
+              </template>
+              <template v-slot:body-cell-delete="props">
+                <q-td :props="props">
+                  <q-icon
+                    color="red"
+                    name="delete"
+                    @click="deleteEntry(props.row)"
+                    style="cursor: pointer"
+                    size="20px"
+                  />
+                </q-td>
+              </template>
+            </q-table>
           </q-card-section>
         </q-card>
       </q-expansion-item>
@@ -142,13 +159,14 @@ export default {
 
 <script setup>
 import { ref, computed } from "vue";
-import { useQuery } from "vue-query";
+import { useMutation, useQuery } from "vue-query";
 import { useRoute } from "vue-router";
 
 import CommonHeader from "src/components/CommonHeader.vue";
 import { getSingle } from "src/utilities/fetchWrapper";
 import { util_pagination } from "src/utilities/util_pagination";
 import { sales_category_columns } from "src/utilities/columns/sales_category_columns";
+import { deleteData } from "src/utilities/commonMethods";
 
 const route = useRoute();
 const today_entries = ref([]);
@@ -163,7 +181,6 @@ useQuery(
   () => getSingle("today_entries", route.params.slug),
   {
     onSuccess: (data) => {
-      console.log(data);
       total_entries.value = data.data;
       const data1 = groupByCategory(data.data, "category");
       today_entries.value = Object.keys(data1).map((key) => {
@@ -193,4 +210,25 @@ const total_entries_quantities = computed(() => {
 const total_category_entries_amount = (arr) => {
   return Array.isArray(arr) ? arr.reduce((a, b) => a + Number(b.usage_cost), 0) : 0;
 };
+
+const deleteEntry = (row) => {
+  const delete_entry = confirm(`Are you sure you want to delete ${row.product}`);
+  if (delete_entry) {
+    loading.value = true;
+    removeEntry(row.id);
+  }
+};
+
+const { mutate: removeEntry } = useMutation((id) => deleteData(id, "entries"), {
+  onSuccess: (data) => {
+    queryClient.refetchQueries("entries");
+    notifyUser($q, data.message, "top-right", "orange");
+    loading.value = false;
+  },
+
+  onError: (error) => {
+    notifyUser($q, `There was an error : ${error}`, "top-right", "red");
+    loading.value = false;
+  },
+});
 </script>

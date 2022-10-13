@@ -4,24 +4,30 @@
       <q-card-actions>
         <q-btn @click="$router.back()" icon="arrow_back" dense flat label="Back" />
         <q-space />
-        <div>Purchase Reports</div>
+        <div>Purchases Reports</div>
         <q-spinner-grid v-if="loading" class="q-ml-lg" size="20px" color="white" />
         <q-space />
-        <div>From {{ currentDate?.from }}: to {{ currentDate?.to }}</div>
-        <q-space />
+
+        <div>From : <input type="date" v-model="report_date.from" :max="max_date" /></div>
+        <div v-if="report_date.from">
+          To :
+          <input type="date" v-model="report_date.to" :max="max_date" />
+        </div>
         <q-btn
+          v-if="report_date.to"
           icon="event"
           unelevated
-          rounded
+          dense
+          label="Fetch"
           color="orange"
-          @click="datePickerDialog = true"
+          @click="submitDateRange"
         />
       </q-card-actions>
     </q-card>
 
     <q-table
       v-if="purchases.length > 0"
-      title="Purchases"
+      title="Entries"
       :rows="purchases"
       :columns="purchases_report_columns"
       row-key="product"
@@ -29,6 +35,7 @@
       v-model:pagination="pagination"
       :filter="filter"
       dense
+      class="q-mt-sm"
     >
       <template v-slot:top-left>
         <q-btn
@@ -73,23 +80,6 @@
         </q-input>
       </template>
     </q-table>
-
-    <q-dialog v-model="datePickerDialog" persistent>
-      <q-card>
-        <q-date :options="optionsFn" v-model="currentDate" range />
-        <q-card-actions>
-          <q-btn
-            dense
-            @click="datePickerDialog = false"
-            label="Cancel"
-            color="red"
-            flat
-          />
-          <q-space />
-          <q-btn dense @click="submitDateRange" label="Submit" color="primary" flat />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
   </div>
 </template>
 
@@ -97,7 +87,7 @@
 import { useUserStore as store } from "src/stores/user-store";
 
 export default {
-  preFetch({ currentRoute, previousRoute, redirect }) {
+  preFetch({ redirect }) {
     const userStore = store();
     !userStore?.user && redirect({ path: "/" });
   },
@@ -105,7 +95,7 @@ export default {
 </script>
 
 <script setup>
-import { ref } from "vue";
+import { ref, reactive } from "vue";
 import { useMutation } from "vue-query";
 import { useQuasar } from "quasar";
 
@@ -115,7 +105,12 @@ import { util_pagination } from "src/utilities/util_pagination";
 import { exportExcel } from "src/utilities/exportExcel";
 import { exportDataToPdf } from "src/utilities/exportPdf";
 
-const currentDate = ref(new Date().toLocaleDateString("zh-Hans-CN"));
+const max_date = new Date().toISOString().split("T")[0];
+
+const report_date = reactive({
+  from: "",
+  to: "",
+});
 
 const datePickerDialog = ref(false);
 const model = ref();
@@ -140,17 +135,13 @@ const fetchDataInDateRange = async (data) => {
 
 const submitDateRange = () => {
   const data = {
-    from: currentDate.value.from.replace(/\//g, "-"),
-    to: currentDate.value.to.replace(/\//g, "-"),
+    from: report_date.from,
+    to: report_date.to,
   };
 
   mutate(data);
   loading.value = true;
   excel_name.value = `Purchases-Data-${data.from}-${data.to}`;
-};
-
-const optionsFn = (date) => {
-  return date <= currentDate.value;
 };
 
 const { mutate } = useMutation((data) => fetchDataInDateRange(data), {

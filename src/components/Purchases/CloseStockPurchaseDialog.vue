@@ -7,10 +7,11 @@
         >
         <q-space />
         <q-spinner-grid v-if="loading" class="q-mr-lg" size="20px" />
+        <span>Unit price : {{ purchase.unit_price }}</span>
       </q-card-section>
       <q-separator color="orange" />
       <q-card-section>
-        <div class="row">
+        <!-- <div class="row">
           <div class="col-xs-12 col-sm-6 col-md-6 q-mb-sm q-pa-sm">
             <q-select
               :disable="edit_purchase"
@@ -80,10 +81,11 @@
               </template>
             </q-select>
           </div>
-        </div>
+        </div> -->
         <div class="row">
           <div class="col-xs-12 col-sm-6 col-md-6 q-mb-sm q-pa-sm">
             <q-input
+              :disable="true"
               type="number"
               outlined
               dense
@@ -93,6 +95,7 @@
           </div>
           <div class="col-xs-12 col-sm-6 col-md-6 q-mb-sm q-pa-sm">
             <q-input
+              :disable="true"
               type="number"
               outlined
               dense
@@ -102,28 +105,9 @@
           </div>
         </div>
         <div class="row">
-          <!-- <div class="col-xs-12 col-sm-6 col-md-6 q-mb-sm q-pa-sm">
-            <q-input
-              type="number"
-              outlined
-              dense
-              v-model="purchase.closing_stock"
-              label="Closing Stock"
-            />
-          </div> -->
-        </div>
-        <div class="row">
-          <!-- <div class="col-xs-12 col-sm-6 col-md-6 q-mb-sm q-pa-sm">
-            <q-input
-              type="number"
-              outlined
-              dense
-              v-model="purchase.actual_stock"
-              label="Actual Stock"
-            />
-          </div> -->
           <div class="col-xs-12 col-sm-6 col-md-6 q-mb-sm q-pa-sm">
             <q-input
+              :disable="true"
               type="number"
               outlined
               dense
@@ -132,38 +116,34 @@
             />
           </div>
           <div class="col-xs-12 col-sm-6 col-md-6 q-mb-sm q-pa-sm">
-            <q-card flat bordered class="q-pa-sm"
-              >Unit price : {{ price_per_unit }}</q-card
-            >
+            <q-input
+              :disable="true"
+              type="number"
+              outlined
+              dense
+              v-model="purchase.balance"
+              label="Balance"
+            />
           </div>
         </div>
+        <q-separator color="primary" />
         <div class="row">
           <div class="col-xs-12 col-sm-6 col-md-6 q-mb-sm q-pa-sm">
-            <q-select
-              dense
+            <q-input
+              type="number"
               outlined
-              v-model="purchase.payment_mode_id"
-              use-input
-              input-debounce="0"
-              label="Select Payment Mode"
-              :options="options3"
-              option-label="name"
-              @filter="filterFn3"
-              class="q-mb-md"
-              ><template v-slot:no-option>
-                <q-item>
-                  <q-item-section class="text-grey"> No results </q-item-section>
-                </q-item>
-              </template>
-            </q-select>
+              dense
+              v-model="purchase.actual_stock"
+              label="Actual Stock"
+            />
           </div>
           <div class="col-xs-12 col-sm-6 col-md-6 q-mb-sm q-pa-sm">
             <q-input
               type="number"
               outlined
               dense
-              v-model="purchase.balance"
-              label="Balance"
+              v-model="purchase.closing_stock"
+              label="Closing Stock"
             />
           </div>
         </div>
@@ -185,9 +165,6 @@
 </template>
 
 <script setup>
-import { computed, ref } from "vue";
-import { filterData, filterData2 } from "src/utilities/commonMethods";
-
 const props = defineProps([
   "purchase",
   "ingredients",
@@ -199,25 +176,4 @@ const props = defineProps([
 ]);
 
 const emit = defineEmits(["addPurchase", "resetForm"]);
-
-const options1 = ref(props.ingredients);
-const options2 = ref(props.units);
-const options3 = ref(props.payment_modes);
-const options4 = ref(props.suppliers);
-
-const filterFn1 = (val, update) => filterData(val, update, options1, props.ingredients);
-const filterFn2 = (val, update) => filterData2(val, update, options2, props.units);
-const filterFn3 = (val, update) => filterData(val, update, options3, props.payment_modes);
-const filterFn4 = (val, update) => filterData(val, update, options4, props.suppliers);
-
-const price_per_unit = computed(() => {
-  const result =
-    props.purchase?.total_amount && props.purchase?.quantity
-      ? (Number(props.purchase?.total_amount) / Number(props.purchase?.quantity)).toFixed(
-          2
-        )
-      : 0;
-  props.purchase.unit_price = result;
-  return result;
-});
 </script>

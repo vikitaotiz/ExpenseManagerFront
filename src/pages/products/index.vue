@@ -17,13 +17,6 @@
       <template v-slot:body-cell-action="props">
         <q-td :props="props">
           <q-icon
-            color="blue"
-            name="edit"
-            @click="editProduct(props.row)"
-            style="cursor: pointer"
-            size="20px"
-          />
-          <q-icon
             color="red"
             name="delete"
             @click="deleteProduct(props.row)"
@@ -106,8 +99,4 @@ const { mutate: removeProduct } = useMutation((id) => deleteData(id, "products")
     loading.value = false;
   },
 });
-
-const editProduct = (row) => {
-  console.log(row);
-};
 </script>

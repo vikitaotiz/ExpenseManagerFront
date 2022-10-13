@@ -11,7 +11,7 @@ export const app_links = [
   },
   {
     to: "/entries",
-    text: "Entries",
+    text: "Sales",
     icon: "ac_unit",
   },
   {

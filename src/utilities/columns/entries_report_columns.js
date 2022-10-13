@@ -22,6 +22,12 @@ export const entries_report_columns = [
     sortable: true,
   },
   {
+    name: "selling_price",
+    label: "Selling Price",
+    field: "selling_price",
+    sortable: true,
+  },
+  {
     name: "opening_stock",
     label: "Opening Stock",
     field: "opening_stock",

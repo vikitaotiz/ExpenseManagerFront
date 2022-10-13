@@ -72,7 +72,6 @@
       :parts="parts"
       @resetForm="resetForm"
       :categories="categories"
-      :suppliers="suppliers"
     />
   </div>
 </template>
@@ -109,7 +108,7 @@ const { data: ingredients, isLoading, isError, error } = useQuery("ingredients",
   fetchData("ingredients")
 );
 
-const { data: suppliers } = useQuery("suppliers", () => fetchData("suppliers"));
+// const { data: suppliers } = useQuery("suppliers", () => fetchData("suppliers"));
 
 const { data: categories } = useQuery("material_categories", () =>
   fetchData("material_categories")
@@ -134,7 +133,7 @@ let ingredient = reactive({
   processing_unit: "",
   store_id: "",
   category_id: "",
-  supplier_id: "",
+  // supplier_id: "",
   errorMessage: "",
   form_title: "Create New Ingredient",
 });
@@ -168,7 +167,6 @@ const addIngredient = () => {
     processing_unit: ingredient.processing_unit.name,
     store_id: ingredient.store_id.id,
     material_category_id: ingredient.category_id.id,
-    supplier_id: ingredient.supplier_id.id,
   };
 
   if (edit_ingredient.value) {
@@ -205,7 +203,6 @@ const editIngredient = (data) => {
   ingredient.processing_unit = data.processing_unit;
   ingredient.store_id = data.store_id;
   ingredient.category_id = data.category_id;
-  ingredient.supplier_id = data.supplier_id;
 
   selected_ingredient_id.value = data.id;
   add_new_ingredient.value = true;
@@ -239,7 +236,6 @@ const clearInput = () => {
   ingredient.processing_unit = "";
   ingredient.store_id = "";
   ingredient.category_id = "";
-  ingredient.supplier_id = "";
   ingredient.errorMessage = "";
 
   selected_ingredient_id.value = "";

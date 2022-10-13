@@ -6,7 +6,7 @@
         <q-card class="q-pa-md">
           <router-link to="/entries_reports" class="r-links">
             <q-icon name="content_paste" size="sm" class="q-mr-md" />
-            Entries</router-link
+            Sales</router-link
           >
         </q-card>
       </div>
@@ -15,7 +15,6 @@
         <q-card class="q-pa-md">
           <router-link to="/purchases_reports" class="r-links">
             <q-icon name="content_paste" size="sm" class="q-mr-md" />
-
             Purchases</router-link
           >
         </q-card>

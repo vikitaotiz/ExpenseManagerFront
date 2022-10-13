@@ -106,7 +106,11 @@
       @resetForm="resetForm"
     />
 
-    <EditCategoryDialog v-model="edit_product_dialog" :category="product.category" />
+    <EditCategoryDialog
+      v-model="edit_product_dialog"
+      :selected_category="selected_category"
+      @editCategory="editCategory"
+    />
   </div>
 </template>
 
@@ -312,8 +316,41 @@ const { mutate: saveEditedProduct } = useMutation(
 );
 
 // Edit category section
+
+const selected_category = reactive({
+  title: "",
+});
 const open_edit_product_dialog = () => {
   edit_product_dialog.value = true;
-  console.log(product.category);
+  selected_category.title = product.category.title;
 };
+
+const editCategory = () => {
+  selected_category.id = product.category.id;
+  if (selected_category.title) {
+    loading.value = true;
+    updateCategory(selected_category);
+  } else {
+    alert("Category name cannot be empty.");
+  }
+};
+
+const { mutate: updateCategory } = useMutation(
+  (data) => update(`categories/${data.id}`, { title: data.title }),
+  {
+    onSuccess: (data) => {
+      if (data.status === "success") {
+        queryClient.refetchQueries(["categories", route.params.slug]);
+        notifyUser($q, data.message, "top-right", "orange");
+        loading.value = false;
+        clearInput();
+      }
+      if (data.status === "error") {
+        loading.value = false;
+        purchase.errorMessage = data.message;
+        notifyUser($q, data.message, "top-right", "red");
+      }
+    },
+  }
+);
 </script>

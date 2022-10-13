@@ -1,7 +1,28 @@
 <template>
-  <CommonHeader
-    :section_title="`All Entries : (Quantities : ${total_entries_quantities}) : Ksh ${total_entries_amount}`"
-  />
+  <q-card class="bg-primary text-white q-ma-xs">
+    <q-card-actions>
+      <q-btn @click="$router.back()" icon="arrow_back" dense flat label="Back" />
+      <q-space />
+      <div>Sales Reports</div>
+      <q-spinner-grid v-if="loading" class="q-ml-lg" size="20px" color="white" />
+      <q-space />
+
+      <div>From : <input type="date" v-model="report_date.from" :max="max_date" /></div>
+      <div v-if="report_date.from">
+        To :
+        <input type="date" v-model="report_date.to" :max="max_date" />
+      </div>
+      <q-btn
+        v-if="report_date.to"
+        icon="event"
+        unelevated
+        dense
+        label="Fetch"
+        color="orange"
+        @click="submitDateRange"
+      />
+    </q-card-actions>
+  </q-card>
   <div class="row">
     <div class="col-xs-12 col-sm-6 col-md-6 q-pa-sm">
       <q-card class="q-pa-sm text-center"
@@ -133,13 +154,14 @@ export default {
 </script>
 
 <script setup>
-import { ref, computed } from "vue";
-import { useQuery } from "vue-query";
-import CommonHeader from "src/components/CommonHeader.vue";
+import { ref, computed, reactive } from "vue";
+import { useMutation, useQuery } from "vue-query";
 import { fetchData } from "src/utilities/commonMethods";
 
 import { util_pagination } from "src/utilities/util_pagination";
 import { sales_category_columns } from "src/utilities/columns/sales_category_columns";
+import { baseUrl } from "src/utilities/constants";
+import { headers } from "src/utilities/constants";
 
 const entries = ref([]);
 const loading = ref(false);
@@ -148,15 +170,18 @@ const pagination = ref(util_pagination(10));
 
 const total_entries = ref("");
 
+const max_date = new Date().toISOString().split("T")[0];
+
+const report_date = reactive({
+  from: "",
+  to: "",
+});
+
 useQuery("entries", () => fetchData("entries"), {
   onSuccess: (data) => {
-    console.log("All sales ", data);
-
     total_entries.value = data;
     const data1 = groupByCategory(data, "category");
-    entries.value = Object.keys(data1).map((key) => {
-      return { name: key, entry_data: data1[key] };
-    });
+    entries.value = sortCategory(data1);
   },
 });
 
@@ -165,6 +190,13 @@ const groupByCategory = (arr, key) => {
     (rv[x[key]] = rv[x[key]] || []).push(x);
     return rv;
   }, {});
+};
+
+const sortCategory = (data) => {
+  const result = Object.keys(data).map((key) => {
+    return { name: key, entry_data: data[key] };
+  });
+  return result;
 };
 
 const total_entries_amount = computed(() => {
@@ -187,6 +219,35 @@ const total_category_entry_quanntities = (arr) => {
 
 const percentage_qty_category = (amt) => {
   return Number(amt) / Number(total_entries_amount);
-  // return ((Number(amt) / Number(total_entries_amount)) * 100).toFixed(2);
+};
+
+const submitDateRange = () => {
+  const data = {
+    from: report_date.from,
+    to: report_date.to,
+  };
+
+  mutate(data);
+  loading.value = true;
+};
+
+const { mutate } = useMutation((data) => fetchDataInDateRange(data), {
+  onSuccess: (data) => {
+    entries.value = data.data;
+    loading.value = false;
+    const data1 = groupByCategory(data.data, "category");
+    entries.value = sortCategory(data1);
+  },
+});
+
+const fetchDataInDateRange = async (data) => {
+  const res = await fetch(`${baseUrl}/get_sales`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(data),
+  });
+
+  const result = await res.json();
+  return result;
 };
 </script>

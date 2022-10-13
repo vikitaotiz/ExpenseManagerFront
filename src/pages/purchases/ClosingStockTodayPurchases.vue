@@ -1,38 +1,5 @@
 <template>
-  <div class="row">
-    <div class="col-xs-12 col-sm-5 col-md-5">
-      <CommonHeader :section_title="`Today Purchases : Ksh ${computedTodayTotal}`" />
-    </div>
-    <div class="col-xs-12 col-sm-2 col-md-2">
-      <q-card class="q-ma-md">
-        <q-btn
-          to="/close_today_purchases"
-          unelevated
-          color="blue"
-          dense
-          label="Close Daily Stock"
-          class="full-width"
-        />
-      </q-card>
-    </div>
-    <div class="col-xs-12 col-sm-5 col-md-5">
-      <q-card class="q-ma-md">
-        <div v-if="loadingPayments">Loading payment modes</div>
-        <div v-else-if="paymentsError">An error has occurred</div>
-        <q-btn
-          v-else
-          @click="filterDataWithPaymentMode(mode)"
-          unelevated
-          size="sm"
-          v-for="mode in payment_modes"
-          :label="mode.name"
-          :key="mode.id"
-          class="q-ma-sm"
-          color="orange"
-        />
-      </q-card>
-    </div>
-  </div>
+  <CommonHeader :section_title="`Today Purchases : Ksh ${computedTodayTotal}`" />
 
   <div class="q-pa-md">
     <div v-if="isLoading">Loading...</div>
@@ -41,7 +8,7 @@
       v-else
       title="Today Purchases"
       :rows="purchases_data"
-      :columns="today_purchases_columns"
+      :columns="closing_today_purchases_columns"
       row-key="name"
       separator="cell"
       v-model:pagination="pagination"
@@ -58,13 +25,13 @@
             size="20px"
             class="q-mr-md"
           />
-          <q-icon
+          <!-- <q-icon
             color="red"
             name="delete"
             @click="deletePurchase(props.row)"
             style="cursor: pointer"
             size="20px"
-          />
+          /> -->
         </q-td>
       </template>
 
@@ -84,30 +51,10 @@
             <q-icon name="search" />
           </template>
         </q-input>
-        <q-btn
-          @click="add_new_purchase = true"
-          round
-          dense
-          color="primary"
-          size="small"
-          icon="add"
-        />
-      </template>
-
-      <template v-slot:top-left>
-        <q-btn
-          v-if="reset"
-          dense
-          flat
-          color="orange"
-          icon="autorenew"
-          label="Reset"
-          @click="resetPurchases()"
-        />
       </template>
     </q-table>
 
-    <AddNewPurchaseDialog
+    <CloseStockPurchaseDialog
       v-model="add_new_purchase"
       @addPurchase="addPurchase"
       :purchase="purchase"
@@ -141,9 +88,9 @@ import { useMutation, useQuery, useQueryClient } from "vue-query";
 import { getAll, post, update } from "src/utilities/fetchWrapper.js";
 import { deleteData, notifyUser } from "src/utilities/commonMethods";
 import { useUserStore } from "src/stores/user-store.js";
-import { today_purchases_columns } from "src/utilities/columns/today_purchases_columns";
+import { closing_today_purchases_columns } from "src/utilities/columns/closing_today_purchases_columns";
 import { util_pagination } from "src/utilities/util_pagination";
-import AddNewPurchaseDialog from "src/components/Purchases/AddNewPurchaseDialog.vue";
+import CloseStockPurchaseDialog from "src/components/Purchases/CloseStockPurchaseDialog.vue";
 import CommonHeader from "src/components/CommonHeader.vue";
 
 const userStore = useUserStore();
@@ -152,7 +99,6 @@ const $q = useQuasar();
 
 const purchases_data = ref([]);
 const purchases_data_copy = ref([]);
-const reset = ref(false);
 
 const { isLoading, isError, error } = useQuery(
   "today_purchases",
@@ -215,26 +161,26 @@ const purchase = reactive({
   form_title: "Add New Purchase",
 });
 
-const deletePurchase = (row) => {
-  const delete_product = confirm("Are you sure you want to delete " + row.name + "?");
-  if (delete_product) {
-    loading.value = true;
-    removePurchase(row.id);
-  }
-};
+// const deletePurchase = (row) => {
+//   const delete_product = confirm("Are you sure you want to delete " + row.name + "?");
+//   if (delete_product) {
+//     loading.value = true;
+//     removePurchase(row.id);
+//   }
+// };
 
-const { mutate: removePurchase } = useMutation((id) => deleteData(id, "purchases"), {
-  onSuccess: (data) => {
-    queryClient.refetchQueries("today_purchases");
-    notifyUser($q, data.message, "top-right", "orange");
-    loading.value = false;
-  },
+// const { mutate: removePurchase } = useMutation((id) => deleteData(id, "purchases"), {
+//   onSuccess: (data) => {
+//     queryClient.refetchQueries("today_purchases");
+//     notifyUser($q, data.message, "top-right", "orange");
+//     loading.value = false;
+//   },
 
-  onError: (error) => {
-    notifyUser($q, `There was an error : ${error}`, "top-right", "red");
-    loading.value = false;
-  },
-});
+//   onError: (error) => {
+//     notifyUser($q, `There was an error : ${error}`, "top-right", "red");
+//     loading.value = false;
+//   },
+// });
 
 const addPurchase = () => {
   add_new_purchase.value = true;
@@ -252,43 +198,47 @@ const addPurchase = () => {
     measurement: purchase.measurement?.title,
     total_amount: purchase.total_amount,
     unit_price: purchase.unit_price,
-    payment_mode_id: purchase.payment_mode_id.id,
-    supplier_id: purchase.supplier_id.id,
+    // payment_mode_id: purchase.payment_mode_id.id,
+    // supplier_id: purchase.supplier_id.id,
     actual_stock: purchase.actual_stock,
     balance: purchase.balance,
+
     user_id: userStore?.user?.user?.id,
     company_id: userStore?.user?.user?.company_id,
   };
 
-  if (edit_purchase.value) {
-    data.id = selected_purchase.value.id;
-    data.product = selected_purchase.value.product;
-    if (!data.measurement) data.measurement = selected_purchase.value.measurement;
+  // if (edit_purchase.value) {
+  data.id = selected_purchase.value.id;
+  data.product = selected_purchase.value.product;
+  if (!data.measurement) data.measurement = selected_purchase.value.measurement;
 
-    editSelectedPurchase(data);
-    loading.value = true;
-  } else {
-    newPurchase(data);
-    loading.value = true;
-  }
+  console.log(data);
+
+  editSelectedPurchaseClosing(data);
+  loading.value = true;
+
+  // } else {
+  //   newPurchase(data);
+  //   loading.value = true;
+  // }
 };
 
-const { mutate: newPurchase } = useMutation((data) => post("purchases", data), {
-  onSuccess: (data) => {
-    if (data.status === "success") {
-      queryClient.refetchQueries("today_purchases");
-      add_new_purchase.value = false;
-      notifyUser($q, data.message, "top-right", "orange");
-      loading.value = false;
-      clearInput();
-    }
-    if (data.status === "error") {
-      loading.value = false;
-      purchase.errorMessage = data.message;
-      notifyUser($q, data.message, "top-right", "red");
-    }
-  },
-});
+// const { mutate: newPurchase } = useMutation((data) => post("purchases", data), {
+//   onSuccess: (data) => {
+//     if (data.status === "success") {
+//       queryClient.refetchQueries("today_purchases");
+//       add_new_purchase.value = false;
+//       notifyUser($q, data.message, "top-right", "orange");
+//       loading.value = false;
+//       clearInput();
+//     }
+//     if (data.status === "error") {
+//       loading.value = false;
+//       purchase.errorMessage = data.message;
+//       notifyUser($q, data.message, "top-right", "red");
+//     }
+//   },
+// });
 
 const editPurchase = (data) => {
   (purchase.form_title = `Edit ${data.product}`),
@@ -309,8 +259,8 @@ const editPurchase = (data) => {
   edit_purchase.value = true;
 };
 
-const { mutate: editSelectedPurchase } = useMutation(
-  (data) => update(`purchases/${data.id}`, data),
+const { mutate: editSelectedPurchaseClosing } = useMutation(
+  (data) => post(`edit_closing_purchases/${data.id}`, data),
   {
     onSuccess: (data) => {
       if (data.status === "success") {
@@ -330,16 +280,19 @@ const { mutate: editSelectedPurchase } = useMutation(
 );
 
 const clearInput = () => {
-  purchase.product = "";
-  purchase.quantity = 0;
-  purchase.issued = 0;
-  purchase.opening_stock = 0;
+  // purchase.product = "";
+  // purchase.quantity = 0;
+  // purchase.issued = 0;
+  // purchase.opening_stock = 0;
+
   purchase.closing_stock = 0;
-  purchase.measurement = "";
-  purchase.total_amount = 0;
-  purchase.unit_price = 0;
-  purchase.balance = 0;
-  purchase.payment_mode_id = "";
+  purchase.actual_stock = 0;
+
+  // purchase.measurement = "";
+  // purchase.total_amount = 0;
+  // purchase.unit_price = 0;
+  // purchase.balance = 0;
+  // purchase.payment_mode_id = "";
 
   purchase.errorMessage = "";
   selected_purchase.value = "";
@@ -350,18 +303,13 @@ const clearInput = () => {
 
 const resetForm = () => clearInput();
 
-const filterDataWithPaymentMode = (data) => {
-  reset.value = true;
-  purchases_data.value = purchases_data_copy.value;
-  purchases_data.value = purchases_data.value.filter(
-    (val) => val.payment_mode == data.name
-  );
-  if (purchases_data.value.length < 1)
-    notifyUser($q, `${data.name} has no entries yet.`, "top", "red");
-};
-
-const resetPurchases = () => {
-  purchases_data.value = purchases_data_copy.value;
-  reset.value = false;
-};
+// const filterDataWithPaymentMode = (data) => {
+//   reset.value = true;
+//   purchases_data.value = purchases_data_copy.value;
+//   purchases_data.value = purchases_data.value.filter(
+//     (val) => val.payment_mode == data.name
+//   );
+//   if (purchases_data.value.length < 1)
+//     notifyUser($q, `${data.name} has no entries yet.`, "top", "red");
+// };
 </script>

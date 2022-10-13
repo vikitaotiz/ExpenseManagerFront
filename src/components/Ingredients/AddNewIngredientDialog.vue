@@ -74,7 +74,7 @@
             />
           </div>
         </div>
-        <div class="row">
+        <!-- <div class="row">
           <div class="q-pa-sm col-xs-12 col-sm-4 col-md-4">
             <q-select
               v-if="ingredient.store_id"
@@ -87,7 +87,7 @@
               class="q-mb-md"
             />
           </div>
-        </div>
+        </div> -->
         <small style="color: red">{{ ingredient.errorMessage }}</small>
       </q-card-section>
       <q-card-actions align="right">
@@ -112,7 +112,7 @@
 </template>
 
 <script setup>
-defineProps(["ingredient", "units", "parts", "stores", "categories", "suppliers"]);
+defineProps(["ingredient", "units", "parts", "stores", "categories"]);
 
 const emit = defineEmits(["addIngredient", "resetForm"]);
 </script>

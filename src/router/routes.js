@@ -18,13 +18,14 @@ import Companies from "pages/companies/Index.vue";
 import OptionalInput from "pages/companies/OptionalInput.vue";
 import Reports from "pages/reports/Index.vue";
 import EntriesReports from "pages/reports/EntriesReports.vue";
-import PurchasesReports from "pages/reports/PurchasesReports.vue";
+import PurchasesReports from "src/pages/reports/PurchasesReports11.vue";
 import Parts from "pages/parts/Index.vue";
 import Units from "pages/units/Index.vue";
 import Ingredients from "pages/Ingredients/index.vue";
 import Purchases from "pages/purchases/Index.vue";
 import AllPurchases from "pages/purchases/AllPurchases.vue";
 import TodayPurchases from "pages/purchases/TodayPurchases.vue";
+import CloseTodayPurchases from "pages/purchases/ClosingStockTodayPurchases.vue";
 import Suppliers from "pages/Suppliers/Index.vue";
 
 const routes = [
@@ -135,6 +136,10 @@ const routes = [
       {
         path: "today_purchases",
         component: TodayPurchases,
+      },
+      {
+        path: "close_today_purchases",
+        component: CloseTodayPurchases,
       },
       {
         path: "all_purchases",

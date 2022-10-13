@@ -1,11 +1,11 @@
 <template>
+  <CommonHeader :section_title="`Companies/Businesses with entries`" />
   <div class="q-pa-md">
     <div v-if="isLoading">Loading...</div>
     <div v-else-if="isError">An error has occurred</div>
     <q-table
       v-else
       grid
-      title="Companies/Businesses with entries"
       :rows="companies"
       row-key="title"
       :filter="filter"
@@ -78,6 +78,7 @@ export default {
 import { ref } from "vue";
 import { useQuery } from "vue-query";
 
+import CommonHeader from "src/components/CommonHeader.vue";
 import { fetchData } from "src/utilities/commonMethods";
 import { util_pagination } from "src/utilities/util_pagination";
 

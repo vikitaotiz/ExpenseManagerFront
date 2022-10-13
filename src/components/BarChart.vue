@@ -29,8 +29,14 @@ export default {
         labels: [],
         datasets: [
           {
-            label: "Total Entries",
+            label: "Last 7 days sales",
             backgroundColor: "#029E43",
+            data: [],
+          },
+
+          {
+            label: "Last 7 days purchases",
+            backgroundColor: "#000",
             data: [],
           },
         ],
@@ -48,17 +54,29 @@ export default {
   methods: {
     async fetchCategories() {
       const res = await fetchData("entries_last_seven_days");
-      let arr = [];
-      let colors = [];
+      let arr1 = [];
+      let arr2 = [];
+      let colors1 = [];
+      let colors2 = [];
+
       if (res && res.length > 0) {
         res.forEach((val) => {
           this.chartData.labels.push(val.day);
-          arr.push(val.records);
-          colors.push(getRandomColor());
+          arr1.push(val.sales);
+          colors1.push("#029E43");
         });
 
-        this.chartData.datasets[0].data = arr;
-        this.chartData.datasets[0].backgroundColor = colors;
+        this.chartData.datasets[0].data = arr1;
+        this.chartData.datasets[0].backgroundColor = colors1;
+      }
+      if (res && res.length > 0) {
+        res.forEach((val) => {
+          arr2.push(val.purchases);
+          colors2.push("#F44336");
+        });
+
+        this.chartData.datasets[1].data = arr2;
+        this.chartData.datasets[1].backgroundColor = colors2;
       }
     },
   },
