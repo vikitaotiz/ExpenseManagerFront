@@ -18,7 +18,7 @@ import Companies from "pages/companies/Index.vue";
 import OptionalInput from "pages/companies/OptionalInput.vue";
 import Reports from "pages/reports/Index.vue";
 import EntriesReports from "pages/reports/EntriesReports.vue";
-import PurchasesReports from "src/pages/reports/PurchasesReports11.vue";
+import PurchasesReports from "src/pages/reports/PurchasesReports.vue";
 import Parts from "pages/parts/Index.vue";
 import Units from "pages/units/Index.vue";
 import Ingredients from "pages/Ingredients/index.vue";

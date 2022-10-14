@@ -3,7 +3,7 @@
     <q-card-actions>
       <q-btn @click="$router.back()" icon="arrow_back" dense flat label="Back" />
       <q-space />
-      <div>Sales Reports</div>
+      <div>Sales Reports : Ksh {{ total_entries_amount }}</div>
       <q-spinner-grid v-if="loading" class="q-ml-lg" size="20px" color="white" />
       <q-space />
 
@@ -132,7 +132,11 @@
               flat
               dense
               :rows="props.row.entry_data"
-              :columns="sales_category_columns"
+              :columns="
+                sales_category_columns.filter(
+                  (y) => y.name !== 'edit' && y.name !== 'delete'
+                )
+              "
               bordered
             />
           </q-card-section>
@@ -179,6 +183,7 @@ const report_date = reactive({
 
 useQuery("entries", () => fetchData("entries"), {
   onSuccess: (data) => {
+    console.log(data);
     total_entries.value = data;
     const data1 = groupByCategory(data, "category");
     entries.value = sortCategory(data1);
@@ -234,6 +239,7 @@ const submitDateRange = () => {
 const { mutate } = useMutation((data) => fetchDataInDateRange(data), {
   onSuccess: (data) => {
     entries.value = data.data;
+    total_entries.value = data.data;
     loading.value = false;
     const data1 = groupByCategory(data.data, "category");
     entries.value = sortCategory(data1);
