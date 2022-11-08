@@ -122,6 +122,13 @@
           </router-link></q-card
         >
       </div>
+      <div class="col-xs-12 col-sm-3 col-md-3 q-mb-sm q-pa-sm">
+        <q-card flat class="q-pa-md">
+          <q-icon size="sm" class="q-mr-md" color="primary" name="lock_open" />
+
+          <router-link to="/tags" class="setting_links"> Tags </router-link></q-card
+        >
+      </div>
     </div>
   </div>
 </template>

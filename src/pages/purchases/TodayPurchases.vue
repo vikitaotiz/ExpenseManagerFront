@@ -203,6 +203,7 @@ const purchase = reactive({
   closing_stock: 0,
   measurement: "",
   total_amount: 0,
+  amount_paid: 0,
   unit_price: 0,
   balance: 0,
   user_id: "",
@@ -251,6 +252,7 @@ const addPurchase = () => {
     closing_stock: purchase.closing_stock,
     measurement: purchase.measurement?.title,
     total_amount: purchase.total_amount,
+    amount_paid: purchase.amount_paid,
     unit_price: purchase.unit_price,
     payment_mode_id: purchase.payment_mode_id.id,
     supplier_id: purchase.supplier_id.id,
@@ -299,6 +301,7 @@ const editPurchase = (data) => {
     (purchase.closing_stock = data.closing_stock),
     (purchase.measurement = data.measurement),
     (purchase.total_amount = data.total_amount),
+    (purchase.amount_paid = data.amount_paid),
     (purchase.unit_price = data.unit_price),
     (purchase.balance = data.balance),
     (purchase.balance = data.balance),
@@ -337,6 +340,7 @@ const clearInput = () => {
   purchase.closing_stock = 0;
   purchase.measurement = "";
   purchase.total_amount = 0;
+  purchase.amount_paid = 0;
   purchase.unit_price = 0;
   purchase.balance = 0;
   purchase.payment_mode_id = "";

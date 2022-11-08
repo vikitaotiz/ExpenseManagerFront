@@ -162,6 +162,15 @@
               type="number"
               outlined
               dense
+              v-model="purchase.amount_paid"
+              label="Amount Paid"
+            />
+          </div>
+          <div class="col-xs-12 col-sm-6 col-md-6 q-mb-sm q-pa-sm">
+            <q-input
+              type="number"
+              outlined
+              dense
               v-model="purchase.balance"
               label="Balance"
             />

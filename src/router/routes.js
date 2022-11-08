@@ -7,6 +7,8 @@ import CompanyEntries from "pages/entries/CompanyEntries.vue";
 import CompanyStores from "pages/company_stores/Index.vue";
 import AllProducts from "pages/products/index.vue";
 import Costings from "pages/costings/Index.vue";
+import Bar from "src/pages/costings/Bar.vue";
+import Kitchen from "src/pages/costings/Kitchen.vue";
 import CostingCategoryProducts from "pages/costings/CostingCategoryProducts.vue";
 import Entries from "pages/entries/Index.vue";
 import AllEntries from "pages/entries/AllEntries.vue";
@@ -27,6 +29,7 @@ import AllPurchases from "pages/purchases/AllPurchases.vue";
 import TodayPurchases from "pages/purchases/TodayPurchases.vue";
 import CloseTodayPurchases from "pages/purchases/ClosingStockTodayPurchases.vue";
 import Suppliers from "pages/Suppliers/Index.vue";
+import Tags from "pages/tags/Index.vue";
 
 const routes = [
   {
@@ -66,6 +69,14 @@ const routes = [
       {
         path: "/costings",
         component: Costings,
+      },
+      {
+        path: "/bar",
+        component: Bar,
+      },
+      {
+        path: "/kitchen",
+        component: Kitchen,
       },
       {
         path: "/entries",
@@ -148,6 +159,10 @@ const routes = [
       {
         path: "suppliers",
         component: Suppliers,
+      },
+      {
+        path: "tags",
+        component: Tags,
       },
     ],
   },
